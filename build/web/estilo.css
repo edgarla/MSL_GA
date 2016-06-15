@@ -10,7 +10,7 @@ and open the template in the editor.
 
 .Marco{
     width: 90%;
-    height: 780px;
+    height: 850px;
     margin-top: 80px;
     margin-left: 5%;
     margin-right: 5%;
@@ -74,7 +74,7 @@ and open the template in the editor.
 }
 
 #acordeonAdmin div.panel{
-    height: 600px;
+    height: 650px;
 }
 
 #listaConsultores{
@@ -125,5 +125,34 @@ and open the template in the editor.
     font-family: Lucida Grande,Lucida Sans,Arial,sans-serif;
     font-size: 24px;
     font-weight: bold;
+    color: #2779aa;
+}
+
+div.actividad{
+    margin-left: 5px;
+    margin-right: 5px;
+    margin-bottom: 2px;
+    padding: 5px;
+    border: 1px solid #aed0ea;
+    cursor: pointer;
+}
+
+div.actividad:hover{
+    background-color: #d7ebf9;
+}
+
+div.actividad p.campo{
+    font-size: 12px;
+    font-family: Lucida Grande,Lucida Sans,Arial,sans-serif;
+    display: inline-block;
+    margin-right: 5px;
+    margin-top: 0px;
+    margin-bottom: 2px;
+}
+
+div.actividad p.campo span{
+    font-weight: bold;
+    font-family: Lucida Grande,Lucida Sans,Arial,sans-serif;
+    font-size: 15px;
     color: #2779aa;
 }

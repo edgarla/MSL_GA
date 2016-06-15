@@ -113,7 +113,7 @@ public class Actividad {
     }
     
     public String toHtml(ArrayList tipoActividades){
-        SimpleDateFormat sdf = new SimpleDateFormat("dd-mm-yyyy");
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
         int i = 0;
         TipoActividad ta = null;
         while(i < tipoActividades.size() && ta == null){
@@ -122,11 +122,18 @@ public class Actividad {
             }
             i = i + 1;
         }
+        String stringJornada = "";
+        if(this.jornada == 1){
+            stringJornada = "Mañana";
+        }else{
+            stringJornada = "Tarde";
+        }
         String html = "";
         html = html + "<div class=\"actividad\">";
-        html = html + "<p class=\"campo\"><input value=\"" + this.idActividad + "\" /><span>Actividad:</span> " + this.idActividad + "</p>";
+        html = html + "<p class=\"campo\"><span>Actividad No:</span> " + this.idActividad + "</p>";
         html = html + "<p class=\"campo\"><span>Fecha:</span> " + sdf.format(fechaDeEjecucion) + "</p>";
         html = html + "<p class=\"campo\"><span>Cliente:</span> " + this.idCliente + "</p>";
+        html = html + "<p class=\"campo\"><span>Jornada:</span> " + stringJornada + "</p>";
         html = html + "<p class=\"campo\"><span>Tipo Actividad:</span> " + ta.getNombre() + "</p>";
         html = html + "<p class=\"campo\"><span>Descripcion:</span> " + this.descripcion + "</p>";
         html = html + "</div>";

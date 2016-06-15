@@ -11,7 +11,10 @@ package msl.ga.db;
  */
 public final class DbInfo {
     
+    private static String localUrl = "jdbc:sqlserver://192.168.1.202:1433;databaseName=MDB;user=sa;password=Adm1nistrat0r";
+    private static String remoteUrl = "jdbc:sqlserver://190.60.206.11:1433;databaseName=MDB;user=sa;password=Adm1nistrat0r";
+    
     public static String getUrlString(){
-        return "jdbc:sqlserver://192.168.1.202:1433;databaseName=MDB;user=sa;password=Adm1nistrat0r";
+        return remoteUrl;
     }
 }

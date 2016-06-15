@@ -20,7 +20,7 @@ import msl.ga.modelo.Programacion;
  * @author edgarloraariza
  */
 public class ActividadEJB {
-    private final String querySiguienteIdActividad = "select (case when max(id_actividad) is null then 0 end) + 1 as next_id_actividad from MSL_GA_SCHEMA.Actividad";
+    private final String querySiguienteIdActividad = "select (case when max(id_actividad) is null then 0 else max(id_actividad) end) + 1 as next_id_actividad from MSL_GA_SCHEMA.Actividad";
     
     private int getSiguienteIdActividad() throws ClassNotFoundException, SQLException{
         Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
@@ -37,15 +37,15 @@ public class ActividadEJB {
         return result;
     }
     
-    private String getQueryHayActividadEnJornada(String fecha, int jornada){
-        return "select * from MSL_GA_SCHEMA.Actividad a where a.fecha_programacion = '" + fecha + "' and a.jornada = " + jornada + " and a.estado = 0";
+    private String getQueryHayActividadEnJornada(int idProgramacion, String fecha, int jornada){
+        return "select * from MSL_GA_SCHEMA.Actividad a where a.id_programacion = " + idProgramacion + " and a.fecha_programacion = '" + fecha + "' and a.jornada = " + jornada + " and a.estado = 0";
     }
     
-    private boolean hayActividadEnJornada(String fecha, int jornada) throws ClassNotFoundException, SQLException{
+    private boolean hayActividadEnJornada(int idProgramacion, String fecha, int jornada) throws ClassNotFoundException, SQLException{
         Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
         try (Connection conn = DriverManager.getConnection(msl.ga.db.DbInfo.getUrlString())) {
             try (Statement st = conn.createStatement()) {
-                try (ResultSet r = st.executeQuery(this.getQueryHayActividadEnJornada(fecha, jornada))) {
+                try (ResultSet r = st.executeQuery(this.getQueryHayActividadEnJornada(idProgramacion, fecha, jornada))) {
                     return r.next();
                     
                 }
@@ -55,12 +55,12 @@ public class ActividadEJB {
     
     private String getQueryCrearActividad(Actividad a) throws ClassNotFoundException, SQLException{
         SimpleDateFormat sdf = new SimpleDateFormat("dd-mm-yyyy");
-        return "insert into MSL_GA_SCHEMA.Actividad (id_actividad, id_programacion, fecha_programacion, jornada, id_tipo_actividad, estado, descripcion) values (" + this.getSiguienteIdActividad()+ ", " + a.getIdProgramacion() + ", '" + sdf.format(a.getFechaDeEjecucion()) + "', " + a.getJornada() + ", " + a.getTipoActividad() + ", " + a.getEstado() + ", '" + a.getDescripcion() + "')";
+        return "insert into MSL_GA_SCHEMA.Actividad (id_actividad, id_programacion, fecha_programacion, id_organizacion, jornada, id_tipo_actividad, estado, descripcion) values (" + this.getSiguienteIdActividad()+ ", " + a.getIdProgramacion() + ", '" + sdf.format(a.getFechaDeEjecucion()) + "', '" + a.getIdCliente() + "', " + a.getJornada() + ", " + a.getTipoActividad() + ", " + a.getEstado() + ", '" + a.getDescripcion() + "')";
     }
     
     public void guardarActividad(Actividad a) throws ClassNotFoundException, SQLException, Exception{
         SimpleDateFormat sdf = new SimpleDateFormat("dd-mm-yyyy");
-        if(!this.hayActividadEnJornada(sdf.format(a.getFechaDeEjecucion()), a.getJornada())){
+        if(!this.hayActividadEnJornada(a.getIdProgramacion(), sdf.format(a.getFechaDeEjecucion()), a.getJornada())){
             Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
             try (Connection conn = DriverManager.getConnection(msl.ga.db.DbInfo.getUrlString())) {
                 try (Statement st = conn.createStatement()) {
@@ -84,6 +84,9 @@ public class ActividadEJB {
                 try (ResultSet r = st.executeQuery(this.getQueryListadoDeActividadPorProgramacion(p))) {
                     while(r.next()){
                         Actividad a;
+                        if(result == null){
+                            result = new ArrayList();
+                        }
                         a = new Actividad(r.getInt("id_actividad"), r.getInt("id_programacion"), r.getDate("fecha_programacion"), r.getString("id_organizacion") ,r.getInt("jornada"), r.getInt("id_tipo_actividad"), r.getInt("estado"), r.getString("descripcion"));
                         result.add(a);
                     }
@@ -91,19 +94,5 @@ public class ActividadEJB {
             }
         }
         return result;
-    }
-    
-    private String getQueryAgregarActividadAConsultor(Actividad a){
-        SimpleDateFormat sdf = new SimpleDateFormat("dd-mm-yyyy");
-        return "insert into MSL_GA_SCHEMA.Actividad (id_actividad, id_programacion, fecha_programacion, id_organizacion, jornada, id_tipo_actividad, estdo, descripcion) values (" + a.getIdActividad() + ", " + a.getIdProgramacion() + ", '" + sdf.format(a.getFechaDeEjecucion()) + "', '" + a.getIdCliente() + "', " + a.getJornada() + ", " + a.getTipoActividad() + ", " + a.getEstado() + ", '" + a.getDescripcion() + "')";
-    }
-    
-    public void agregarActividadAConsultor(Actividad a) throws ClassNotFoundException, SQLException{
-        Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-        try (Connection conn = DriverManager.getConnection(msl.ga.db.DbInfo.getUrlString())) {
-            try (Statement st = conn.createStatement()) {
-                st.executeUpdate(this.getQueryAgregarActividadAConsultor(a));
-            }
-        }
     }
 }

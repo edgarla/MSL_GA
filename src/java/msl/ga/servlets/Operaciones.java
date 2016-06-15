@@ -8,6 +8,8 @@ package msl.ga.servlets;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.logging.Level;
@@ -79,6 +81,11 @@ public class Operaciones extends HttpServlet {
                         break;
                     case "getListaActividadesDeConsultor":
                         this.getListaDeActividadesPorConsultor(request, response);
+                        break;
+                    case "agregarActividadAConsultor":
+                            if(this.agregarActividadAConsultor(request, response)){
+                                this.getListaDeActividadesPorConsultor(request, response);
+                            }
                         break;
                 }
             }
@@ -222,7 +229,7 @@ public class Operaciones extends HttpServlet {
             Programacion p = programacionEJB.getProgramacion(usuario, fechaParameter, false);
             if(p != null){
                 ArrayList actividades = actividadesEJB.getActividadesDeProgramacion(p);
-                for(i = 0; i < actividades.size() - 1; i = i + 1){
+                for(i = 0; i < actividades.size(); i = i + 1){
                     Actividad a = (Actividad) actividades.get(i);
                     listaActividades = listaActividades + a.toHtml(this.listaTipoActividades);
                 }
@@ -233,7 +240,7 @@ public class Operaciones extends HttpServlet {
         }
     }
     
-    private void agregarActividadAConsultor(HttpServletRequest request, HttpServletResponse response) throws IOException{
+    private boolean agregarActividadAConsultor(HttpServletRequest request, HttpServletResponse response) throws IOException{
         String usuarioParameter = request.getParameter("consultor");
         String fechaParameter = request.getParameter("fecha");
         String jornadaParameter = request.getParameter("jornada");
@@ -257,11 +264,17 @@ public class Operaciones extends HttpServlet {
         
         try {
             Programacion p = programacionEJB.getProgramacion(usuario, fechaParameter, true);
-            Actividad a = new Actividad(0, p.getIdProgramacion(), new Date(fechaParameter), clienteParamenter, Integer.parseInt(jornadaParameter), Integer.parseInt(tipoActividadParameter), 0, descripcionParameter);
-            actividadesEJB.agregarActividadAConsultor(a);
-        } catch (ClassNotFoundException | SQLException ex) {
+            SimpleDateFormat sdf = new SimpleDateFormat("dd-mm-yyyy");
+            Actividad a = new Actividad(0, p.getIdProgramacion(), sdf.parse(fechaParameter), clienteParamenter, Integer.parseInt(jornadaParameter), Integer.parseInt(tipoActividadParameter), 0, descripcionParameter);
+            actividadesEJB.guardarActividad(a);
+            return true;
+        } catch (ClassNotFoundException | SQLException | ParseException ex) {
             response.getWriter().println("error|Ingreso Errado|" + ex.getMessage());
-        }
+            return false;
+        } catch (Exception ex) {
+            response.getWriter().println("error|Ingreso Errado|" + ex.getMessage());
+            return false;
+        } 
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

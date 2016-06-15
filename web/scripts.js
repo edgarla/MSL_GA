@@ -219,3 +219,28 @@ function actividadesDelConsultor(){
         });
     }
 }
+
+function agregarActividadAConsultor(){
+    if($("#listaConsultores").val() !== "" && $("#jornada").val() !== "" && $("#listaClientes").val() !== "" && $("#panelTipoActividad").val() !== ""){
+        $.ajax({
+            url: "/MSL_GestionDeActividades/Operaciones",
+            type: "POST",
+            data: {accion: "agregarActividadAConsultor", 
+                consultor: $("#listaConsultores").val(), 
+                fecha: $("#fechaActividad").val(),
+                jornada: $("#jornada").val(),
+                cliente: $("#listaClientes").val(),
+                tipoActividad: $("#tipoActividad").val(),
+                descripcion: $("#descripcion").val()},
+            success:function(response){
+                if(response.match("^error")){
+                    mostrarMensaje(response);
+                }else{
+                    $("#listaActividades").html(response);
+                }
+            }
+        });
+    }else{
+        mostrarMensaje("error|Seleccione Todos los Datos|Es necesario que el consultor, la jornada, el ciente y el tipo de actividad sean seleccionadas");
+    }
+}
