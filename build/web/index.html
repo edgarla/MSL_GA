@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>MSL - Gestión de Actividades</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="estilo.css" />
+        <script src="scripts.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+        <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/cupertino/jquery-ui.css">
+        <script>
+            $(function(){
+                $("#botonLogin").button({
+                    icons: {
+                        primary: "ui-icon-locked"
+                    }
+                });
+                $("#botonAgregarActividad").button({
+                    icons: {
+                        primary: "ui-icon-disk"
+                    }
+                });
+                $("#botonEditarActividad").button({
+                    icons: {
+                        primary: "ui-icon-wrench"
+                    }
+                });
+                $("#botonCancelarActividad").button({
+                    icons: {
+                        primary: "ui-icon-cancel"
+                    }
+                });
+            });
+        </script>
+    </head>
+    <body onload="onLoad()">
+        <div id="AlertPanel" title="Alerta"></div>
+        <div id="LoginPanel" class="Marco">
+            <img class="LogoImg" alt="" src="img/logo_msl.png" />
+            <div id="LoginSubPanel">
+                    <p>Usuario: </p>
+                    <select id="usuario">
+                        <option></option>
+                    </select>
+                    <p>Clave: </p>
+                    <input id="clave" type="password" value="" onkeypress="loginOnEnter(event)" />
+                    <button id="botonLogin" onclick="login()" >Ingresar</button>
+            </div>
+        </div>
+        <div id="administrador" class="Marco" >
+            <p class="logoutButton" onclick="logout()"><span class="ui-icon ui-icon-power" style="float: left; margin:0px;"></span>Salir</p>
+            <div id="acordeonAdmin">
+                <h3>Asignar Actividades</h3>
+                <div class="panel">
+                    <div class="panelIzq">
+                        <p>Seleccione al Consultor:</p>
+                        <select id="listaConsultores">
+                            <option></option>
+                        </select>
+                        <p>Seleccione la fecha:</p>
+                        <div id="fechaActividad"></div>
+                        <div class="subpanel">
+                            <div class="panelJornada">
+                                <p>Jornada:</p>
+                                <select id="jornada">
+                                    <option value=""></option>
+                                    <option value="1">Mañana</option>
+                                    <option value="2">Tarde</option>
+                                </select>
+                            </div>
+                            <div class="panelClientes">
+                                <p>Cliente:</p>
+                                <select id="listaClientes">
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                            <div class="panelTipoActividad">
+                                <p>Tipo de Actividad:</p>
+                                <select id="tipoActividad">
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                            <p>Descripción:</p>
+                            <textarea id="descripcion" maxlength="200" cols="40" style="resize: none;"  ></textarea>
+                        </div>
+                        <button id="botonAgregarActividad" onclick="" >Agregar Actividad</button>
+                        <button id="botonEditarActividad" onclick="" >Editar Actividad</button>
+                        <button id="botonCancelarActividad" onclick="" >Cancelar</button>
+                    </div>
+                    <div class="panelDer">
+                        <p class="titulo">Listado de Actividades</p>
+                        <div id="listaActividades"></div>
+                    </div>
+                </div>
+                <h3>Consultar Actividades por Consultor</h3>
+                <div class="panel">
+                    <p>Panel para Consultar las actividades por Consultor</p>
+                </div>
+            </div>
+        </div>
+        <div id="pm" class="Marco" >
+            pm
+            <p class="logoutButton" onclick="logout()"><span class="ui-icon ui-icon-power" style="float: left; margin:0px;"></span>Salir</p>
+        </div>
+        <div id="consultor" class="Marco" >
+            consultor
+            <p class="logoutButton" onclick="logout()"><span class="ui-icon ui-icon-power" style="float: left; margin:0px;"></span>Salir</p>
+        </div>
+    </body>
+</html>

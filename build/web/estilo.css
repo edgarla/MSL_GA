@@ -1,0 +1,129 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : 02-jun-2016, 12:16:11
+    Author     : edgarloraariza
+*/
+
+.Marco{
+    width: 90%;
+    height: 780px;
+    margin-top: 80px;
+    margin-left: 5%;
+    margin-right: 5%;
+    border: 1px solid #aed0ea;
+    background-color: #d7ebf9;
+    display: none;
+}
+
+.LogoImg{
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#LoginSubPanel{
+    width: 30%;
+    display: inline-block;
+    margin-left: 35%;
+    margin-right: 35%;
+    padding-left: 15px;
+    padding-bottom: 5px;
+    border: 1px solid #aed0ea;
+    background-color: #d7ebf9;
+}
+
+#LoginSubPanel p{
+    font-family: Lucida Grande,Lucida Sans,Arial,sans-serif;
+    font-size: 1.1em;
+    color: #2779aa;
+}
+
+#usuario{
+    width: 90%;
+}
+
+#clave{
+    width: 90%;
+}
+
+#botonLogin{
+    width: 40%;
+    display: block;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    margin-left: 30%;
+}
+
+.logoutButton{
+    font-family: Lucida Grande,Lucida Sans,Arial,sans-serif;
+    font-size: 1.1em;
+    color: #2779aa;
+    cursor: pointer;
+    display: inline-block;
+    float: right;
+    margin-right: 10px;
+    margin-top: 15px;
+}
+
+#acordeonAdmin{
+    margin-top: 50px;
+}
+
+#acordeonAdmin div.panel{
+    height: 600px;
+}
+
+#listaConsultores{
+    width: 400px;
+}
+
+#acordeonAdmin div.panel div.panelIzq{
+    display: inline-block;
+    width: 40%;
+    height: 100%;
+    float: left;
+}
+
+#acordeonAdmin div.panel div.panelIzq div.subpanel div.panelJornada{
+    display: inline-block;
+}
+
+#acordeonAdmin div.panel div.panelIzq div.subpanel div.panelJornada select{
+    width: 150px;
+}
+
+#acordeonAdmin div.panel div.panelIzq div.subpanel div.panelClientes{
+    display: inline-block;
+}
+
+#acordeonAdmin div.panel div.panelIzq div.subpanel div.panelClientes select{
+    width: 200px;
+}
+
+#acordeonAdmin div.panel div.panelIzq div.subpanel div.panelTipoActividad{
+    display: inline-block;
+}
+
+#acordeonAdmin div.panel div.panelIzq div.subpanel div.panelTipoActividad select{
+    width: 200px;
+}
+
+#acordeonAdmin div.panel div.panelDer{
+    display: inline-block;
+    width: 59%;
+    height: 100%;
+    float: right;
+    border: 1px solid #aed0ea;
+}
+
+.panelDer p.titulo{
+    text-align: center;
+    font-family: Lucida Grande,Lucida Sans,Arial,sans-serif;
+    font-size: 24px;
+    font-weight: bold;
+    color: #2779aa;
+}
