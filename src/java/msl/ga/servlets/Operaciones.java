@@ -71,7 +71,7 @@ public class Operaciones extends HttpServlet {
                         this.haySesion(request, response);
                         break;
                     case "logout":
-                        this.logout();
+                        this.logout(request);
                         break;
                     case "getListaClientes":
                         this.getListaClientes(response);
@@ -177,7 +177,8 @@ public class Operaciones extends HttpServlet {
         }
     }
     
-    private void logout(){
+    private void logout(HttpServletRequest request){
+        request.getSession().setAttribute("usuarioEnSesion", null);
         this.usuarioEnSesion = null;
     }
     
