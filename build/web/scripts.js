@@ -152,6 +152,7 @@ function initAdministrador(){
     $("#listaConsultores").selectmenu({
         change: function(event, data){
             actividadesDelConsultor();
+            cancelarEditarActividad();
         }
     });
     $("#jornada").selectmenu();
@@ -161,6 +162,7 @@ function initAdministrador(){
         dateFormat: 'dd-mm-yy',
         onSelect: function(){
             actividadesDelConsultor();
+            resetFormularioActividades();
         }
     });
 }
@@ -237,6 +239,101 @@ function agregarActividadAConsultor(){
                     mostrarMensaje(response);
                 }else{
                     $("#listaActividades").html(response);
+                }
+            }
+        });
+    }else{
+        mostrarMensaje("error|Seleccione Todos los Datos|Es necesario que el consultor, la jornada, el ciente y el tipo de actividad sean seleccionadas");
+    }
+}
+
+function selecionarActividad(idActividad, consultor, fecha, jornada, cliente, tipoActividad, descripcion){
+    $("#idActividad").val(idActividad);
+    
+    $("#listaConsultores").val(consultor);
+    $("#listaConsultores").selectmenu("refresh");
+    
+    var valFecha = fecha.split("-");
+    $('#fechaActividad').datepicker("setDate", new Date(valFecha[2], valFecha[1] - 1, valFecha[0]));
+    
+    $("#jornada").val(jornada);
+    $("#jornada").selectmenu("refresh");
+    
+    $("#listaClientes").val(cliente);
+    $("#listaClientes").selectmenu("refresh");
+    
+    $("#tipoActividad").val(tipoActividad);
+    $("#tipoActividad").selectmenu("refresh");
+    
+    $("#descripcion").val(descripcion);
+    
+    $("#botonAgregarActividad").hide();
+    $("#botonEditarActividad").show();
+    $("#botonEliminarActividad").show();
+    $("#botonCancelarActividad").show();
+}
+
+function resetFormularioActividades(){
+    $("#idActividad").val("");
+    
+    $("#jornada").val("");
+    $("#jornada").selectmenu("refresh");
+    
+    $("#listaClientes").val("");
+    $("#listaClientes").selectmenu("refresh");
+    
+    $("#tipoActividad").val("");
+    $("#tipoActividad").selectmenu("refresh");
+    
+    $("#descripcion").val("");
+    
+    $("#botonEditarActividad").hide();
+    $("#botonEliminarActividad").hide();
+    $("#botonCancelarActividad").hide();
+    $("#botonAgregarActividad").show();
+}
+
+function cancelarEditarActividad(){
+    $("#idActividad").val("");
+    
+    $('#fechaActividad').datepicker("setDate", new Date());
+    
+    $("#jornada").val("");
+    $("#jornada").selectmenu("refresh");
+    
+    $("#listaClientes").val("");
+    $("#listaClientes").selectmenu("refresh");
+    
+    $("#tipoActividad").val("");
+    $("#tipoActividad").selectmenu("refresh");
+    
+    $("#descripcion").val("");
+    
+    $("#botonEditarActividad").hide();
+    $("#botonEliminarActividad").hide();
+    $("#botonCancelarActividad").hide();
+    $("#botonAgregarActividad").show();
+}
+
+function deshabilitarActividadAConsultor(){
+    if($("#listaConsultores").val() !== "" && $("#jornada").val() !== "" && $("#listaClientes").val() !== "" && $("#panelTipoActividad").val() !== ""){
+        $.ajax({
+            url: "/MSL_GestionDeActividades/Operaciones",
+            type: "POST",
+            data: {accion: "deshabilitarActividad", 
+                idActividad: $("#idActividad").val(),
+                consultor: $("#listaConsultores").val(), 
+                fecha: $("#fechaActividad").val(),
+                jornada: $("#jornada").val(),
+                cliente: $("#listaClientes").val(),
+                tipoActividad: $("#tipoActividad").val(),
+                descripcion: $("#descripcion").val()},
+            success:function(response){
+                if(response.match("^error")){
+                    mostrarMensaje(response);
+                }else{
+                    $("#listaActividades").html(response);
+                    resetFormularioActividades();
                 }
             }
         });

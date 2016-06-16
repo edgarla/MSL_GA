@@ -112,7 +112,7 @@ public class Actividad {
         return this.idActividad + "¨" + sdf.format(fechaDeEjecucion) + "" + this.idCliente + "¨" + ta.getNombre() + "¨" + this.descripcion;
     }
     
-    public String toHtml(ArrayList tipoActividades){
+    public String toHtml(Usuario u, ArrayList tipoActividades){
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
         int i = 0;
         TipoActividad ta = null;
@@ -129,7 +129,7 @@ public class Actividad {
             stringJornada = "Tarde";
         }
         String html = "";
-        html = html + "<div class=\"actividad\">";
+        html = html + "<div class=\"actividad\" onclick=\"selecionarActividad('" + this.idActividad + "','" + u.getUserid() + "','" + sdf.format(fechaDeEjecucion) + "','" + this.jornada + "','" + this.idCliente + "','" + ta.getIdTipoActividad() + "','" + this.descripcion + "')\">";
         html = html + "<p class=\"campo\"><span>Actividad No:</span> " + this.idActividad + "</p>";
         html = html + "<p class=\"campo\"><span>Fecha:</span> " + sdf.format(fechaDeEjecucion) + "</p>";
         html = html + "<p class=\"campo\"><span>Cliente:</span> " + this.idCliente + "</p>";

@@ -31,6 +31,11 @@ and open the template in the editor.
                         primary: "ui-icon-wrench"
                     }
                 });
+                $("#botonEliminarActividad").button({
+                    icons: {
+                        primary: "ui-icon-trash"
+                    }
+                });
                 $("#botonCancelarActividad").button({
                     icons: {
                         primary: "ui-icon-cancel"
@@ -58,6 +63,7 @@ and open the template in the editor.
             <div id="acordeonAdmin">
                 <h3>Asignar Actividades</h3>
                 <div class="panel">
+                    <input id="idActividad" type="hidden" />
                     <div class="panelIzq">
                         <p>Seleccione al Consultor:</p>
                         <select id="listaConsultores">
@@ -91,7 +97,8 @@ and open the template in the editor.
                         </div>
                         <button id="botonAgregarActividad" onclick="agregarActividadAConsultor()" >Agregar Actividad</button>
                         <button id="botonEditarActividad" onclick="" >Editar Actividad</button>
-                        <button id="botonCancelarActividad" onclick="" >Cancelar</button>
+                        <button id="botonEliminarActividad" onclick="deshabilitarActividadAConsultor()" >Eliminar</button>
+                        <button id="botonCancelarActividad" onclick="cancelarEditarActividad()" >Cancelar</button>
                     </div>
                     <div class="panelDer">
                         <p class="titulo">Listado de Actividades</p>

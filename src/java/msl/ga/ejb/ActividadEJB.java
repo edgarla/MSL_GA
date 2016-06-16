@@ -95,4 +95,17 @@ public class ActividadEJB {
         }
         return result;
     }
+    
+    private String getQueryActualizarEstadoActividad(Actividad a){
+        return "update MSL_GA_SCHEMA.Actividad set estado = " + a.getEstado() + " where id_actividad = " + a.getIdActividad();
+    }
+    
+    public void ActualizarEstadoActividad(Actividad a) throws ClassNotFoundException, SQLException{
+        Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+        try (Connection conn = DriverManager.getConnection(msl.ga.db.DbInfo.getUrlString())) {
+                try (Statement st = conn.createStatement()) {
+                    st.executeUpdate(this.getQueryActualizarEstadoActividad(a));
+                }
+            }
+    }
 }

@@ -83,9 +83,14 @@ public class Operaciones extends HttpServlet {
                         this.getListaDeActividadesPorConsultor(request, response);
                         break;
                     case "agregarActividadAConsultor":
-                            if(this.agregarActividadAConsultor(request, response)){
-                                this.getListaDeActividadesPorConsultor(request, response);
-                            }
+                        if(this.agregarActividadAConsultor(request, response)){
+                            this.getListaDeActividadesPorConsultor(request, response);
+                        }
+                        break;
+                    case "deshabilitarActividad":
+                        if(this.deshabilitarActividad(request, response)){
+                            this.getListaDeActividadesPorConsultor(request, response);
+                        }
                         break;
                 }
             }
@@ -232,7 +237,7 @@ public class Operaciones extends HttpServlet {
                 ArrayList actividades = actividadesEJB.getActividadesDeProgramacion(p);
                 for(i = 0; i < actividades.size(); i = i + 1){
                     Actividad a = (Actividad) actividades.get(i);
-                    listaActividades = listaActividades + a.toHtml(this.listaTipoActividades);
+                    listaActividades = listaActividades + a.toHtml(usuario, this.listaTipoActividades);
                 }
                 response.getWriter().println(listaActividades);
             }
@@ -276,6 +281,40 @@ public class Operaciones extends HttpServlet {
             response.getWriter().println("error|Ingreso Errado|" + ex.getMessage());
             return false;
         } 
+    }
+    
+    public boolean deshabilitarActividad(HttpServletRequest request, HttpServletResponse response) throws IOException{
+        try {
+            String idActividadParameter = request.getParameter("idActividad");
+            String usuarioParameter = request.getParameter("consultor");
+            String fechaParameter = request.getParameter("fecha");
+            String jornadaParameter = request.getParameter("jornada");
+            String clienteParamenter = request.getParameter("cliente");
+            String tipoActividadParameter = request.getParameter("tipoActividad");
+            String descripcionParameter = request.getParameter("descripcion");
+            
+            Usuario usuario = null;
+            int i = 0;
+            while(i < this.listaUsuarios.size() - 1 && usuario == null){
+                Usuario u = (Usuario) this.listaUsuarios.get(i);
+                if(u.getUserid().equals(usuarioParameter)){
+                    usuario =  u;
+                }
+                i = i + 1;
+            }
+
+            ProgramacionEJB programacionEJB = new ProgramacionEJB();
+            
+            Programacion p = programacionEJB.getProgramacion(usuario, fechaParameter, true);
+            SimpleDateFormat sdf = new SimpleDateFormat("dd-mm-yyyy");
+            Actividad a = new Actividad(Integer.parseInt(idActividadParameter), p.getIdProgramacion(), sdf.parse(fechaParameter), clienteParamenter, Integer.parseInt(jornadaParameter), Integer.parseInt(tipoActividadParameter), 1, descripcionParameter);
+            ActividadEJB actividadesEJB = new ActividadEJB();
+            actividadesEJB.ActualizarEstadoActividad(a);
+            return true;
+        } catch (ClassNotFoundException | SQLException | ParseException ex) {
+            response.getWriter().println("error|Error Actualizando Estado de Actividad|" + ex.getMessage());
+            return false;
+        }
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

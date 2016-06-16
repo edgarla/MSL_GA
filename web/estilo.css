@@ -128,6 +128,10 @@ and open the template in the editor.
     color: #2779aa;
 }
 
+#listaActividades{
+    overflow: auto;
+}
+
 div.actividad{
     margin-left: 5px;
     margin-right: 5px;

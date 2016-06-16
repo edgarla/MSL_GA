@@ -15,6 +15,6 @@ public final class DbInfo {
     private static String remoteUrl = "jdbc:sqlserver://190.60.206.11:1433;databaseName=MDB;user=sa;password=Adm1nistrat0r";
     
     public static String getUrlString(){
-        return remoteUrl;
+        return localUrl;
     }
 }
