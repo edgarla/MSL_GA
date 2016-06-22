@@ -45,6 +45,7 @@ and open the template in the editor.
         </script>
     </head>
     <body onload="onLoad()">
+        <input id="idUsuario" type="hidden" />
         <div id="AlertPanel" title="Alerta"></div>
         <div id="LoginPanel" class="Marco">
             <img class="LogoImg" alt="" src="img/logo_msl.png" />
@@ -92,32 +93,47 @@ and open the template in the editor.
                                     <option value=""></option>
                                 </select>
                             </div>
+                            <div class="panelProyecto">
+                                <p>Proyecto:</p>
+                                <select id="proyecto">
+                                    <option value=""></option>
+                                </select>
+                            </div>
                             <p>Descripción:</p>
                             <textarea id="descripcion" maxlength="200" cols="40" style="resize: none;"  ></textarea>
                         </div>
                         <button id="botonAgregarActividad" onclick="agregarActividadAConsultor()" >Agregar Actividad</button>
-                        <button id="botonEditarActividad" onclick="" >Editar Actividad</button>
+                        <button id="botonEditarActividad" onclick="editarActividadAConsultor()" >Editar Actividad</button>
                         <button id="botonEliminarActividad" onclick="deshabilitarActividadAConsultor()" >Eliminar</button>
                         <button id="botonCancelarActividad" onclick="cancelarEditarActividad()" >Cancelar</button>
                     </div>
                     <div class="panelDer">
                         <p class="titulo">Listado de Actividades</p>
+                        <p><input id="porDia" type="checkbox" onclick="actividadesDelConsultor()" />Ver Por Día</p>
                         <div id="listaActividades"></div>
                     </div>
-                </div>
-                <h3>Consultar Actividades por Consultor</h3>
-                <div class="panel">
-                    <p>Panel para Consultar las actividades por Consultor</p>
                 </div>
             </div>
         </div>
         <div id="pm" class="Marco" >
-            pm
+            En construcción
             <p class="logoutButton" onclick="logout()"><span class="ui-icon ui-icon-power" style="float: left; margin:0px;"></span>Salir</p>
         </div>
         <div id="consultor" class="Marco" >
-            consultor
             <p class="logoutButton" onclick="logout()"><span class="ui-icon ui-icon-power" style="float: left; margin:0px;"></span>Salir</p>
+            <div id="acordeonConsultor">
+                <h3>Consulta de Actividades</h3>
+                <div class="panel">
+                    <div class="panelIzq">
+                        <p>Seleccione la fecha:</p>
+                        <div id="fechaActividadConsultor"></div>
+                    </div>
+                    <div class="panelDer">
+                        <p class="titulo">Listado de Actividades</p>
+                        <div id="listaActividadesConsultor"></div>
+                    </div>
+                </div>
+            </div>
         </div>
     </body>
 </html>

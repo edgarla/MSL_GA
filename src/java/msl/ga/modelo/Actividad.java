@@ -20,16 +20,18 @@ public class Actividad {
     private String idCliente;
     private int jornada;
     private int tipoActividad;
+    private int idProyecto;
     private int estado;
     private String descripcion;
 
-    public Actividad(int idActividad, int idProgramacion, Date fechaDeEjecucion, String idCliente, int jornada, int tipoActividad, int estado, String descripcion) {
+    public Actividad(int idActividad, int idProgramacion, Date fechaDeEjecucion, String idCliente, int jornada, int tipoActividad, int idProyecto, int estado, String descripcion) {
         this.idActividad = idActividad;
         this.idProgramacion = idProgramacion;
         this.fechaDeEjecucion = fechaDeEjecucion;
         this.idCliente = idCliente;
         this.jornada = jornada;
         this.tipoActividad = tipoActividad;
+        this.idProyecto = idProyecto;
         this.estado = estado;
         this.descripcion = descripcion;
     }
@@ -97,6 +99,14 @@ public class Actividad {
     public void setDescripcion(String descripcion) {
         this.descripcion = descripcion;
     }
+
+    public int getIdProyecto() {
+        return idProyecto;
+    }
+
+    public void setIdProyecto(int idProyecto) {
+        this.idProyecto = idProyecto;
+    }
     
     
     public String toString(ArrayList tipoActividades){
@@ -112,7 +122,7 @@ public class Actividad {
         return this.idActividad + "¨" + sdf.format(fechaDeEjecucion) + "" + this.idCliente + "¨" + ta.getNombre() + "¨" + this.descripcion;
     }
     
-    public String toHtml(Usuario u, ArrayList tipoActividades){
+    public String toHtml(Usuario u, ArrayList tipoActividades, ArrayList proyectos){
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
         int i = 0;
         TipoActividad ta = null;
@@ -122,19 +132,32 @@ public class Actividad {
             }
             i = i + 1;
         }
-        String stringJornada = "";
+        
+        i = 0;
+        Proyecto p = null;
+        while(i < proyectos.size() && p == null){
+            if(((Proyecto)proyectos.get(i)).getIdProyecto() == this.idProyecto){
+                p = (Proyecto)proyectos.get(i);
+            }
+            i = i + 1;
+        }
+        if(p == null){
+            p = new Proyecto(0, "");
+        }
+        String stringJornada;
         if(this.jornada == 1){
             stringJornada = "Mañana";
         }else{
             stringJornada = "Tarde";
         }
         String html = "";
-        html = html + "<div class=\"actividad\" onclick=\"selecionarActividad('" + this.idActividad + "','" + u.getUserid() + "','" + sdf.format(fechaDeEjecucion) + "','" + this.jornada + "','" + this.idCliente + "','" + ta.getIdTipoActividad() + "','" + this.descripcion + "')\">";
+        html = html + "<div class=\"actividad\" onclick=\"selecionarActividad('" + this.idActividad + "','" + u.getUserid() + "','" + sdf.format(fechaDeEjecucion) + "','" + this.jornada + "','" + this.idCliente + "','" + ta.getIdTipoActividad() + "','" + p.getIdProyecto() + "','" + this.descripcion + "')\">";
         html = html + "<p class=\"campo\"><span>Actividad No:</span> " + this.idActividad + "</p>";
         html = html + "<p class=\"campo\"><span>Fecha:</span> " + sdf.format(fechaDeEjecucion) + "</p>";
         html = html + "<p class=\"campo\"><span>Cliente:</span> " + this.idCliente + "</p>";
         html = html + "<p class=\"campo\"><span>Jornada:</span> " + stringJornada + "</p>";
         html = html + "<p class=\"campo\"><span>Tipo Actividad:</span> " + ta.getNombre() + "</p>";
+        html = html + "<p class=\"campo\"><span>Proyecto:</span> " + p.getNombre() + "</p>";
         html = html + "<p class=\"campo\"><span>Descripcion:</span> " + this.descripcion + "</p>";
         html = html + "</div>";
         return html;

@@ -10,8 +10,8 @@ and open the template in the editor.
 
 .Marco{
     width: 90%;
-    height: 850px;
-    margin-top: 80px;
+    height: 900px;
+    margin-top: 50px;
     margin-left: 5%;
     margin-right: 5%;
     border: 1px solid #aed0ea;
@@ -69,50 +69,58 @@ and open the template in the editor.
     margin-top: 15px;
 }
 
-#acordeonAdmin{
+#acordeonAdmin, #acordeonConsultor{
     margin-top: 50px;
 }
 
-#acordeonAdmin div.panel{
-    height: 650px;
+#acordeonAdmin div.panel, #acordeonConsultor div.panel{
+    height: 750px;
 }
 
 #listaConsultores{
     width: 400px;
 }
 
-#acordeonAdmin div.panel div.panelIzq{
+div.panelIzq{
     display: inline-block;
     width: 40%;
     height: 100%;
     float: left;
 }
 
-#acordeonAdmin div.panel div.panelIzq div.subpanel div.panelJornada{
+div.panelIzq div.subpanel div.panelJornada{
     display: inline-block;
 }
 
-#acordeonAdmin div.panel div.panelIzq div.subpanel div.panelJornada select{
+div.panelIzq div.subpanel div.panelJornada select{
     width: 150px;
 }
 
-#acordeonAdmin div.panel div.panelIzq div.subpanel div.panelClientes{
+div.panelIzq div.subpanel div.panelClientes{
     display: inline-block;
 }
 
-#acordeonAdmin div.panel div.panelIzq div.subpanel div.panelClientes select{
+div.panelIzq div.subpanel div.panelClientes select{
     width: 200px;
 }
 
-#acordeonAdmin div.panel div.panelIzq div.subpanel div.panelTipoActividad{
+div.panelIzq div.subpanel div.panelTipoActividad{
     display: inline-block;
 }
 
-#acordeonAdmin div.panel div.panelIzq div.subpanel div.panelTipoActividad select{
+div.panelIzq div.subpanel div.panelTipoActividad select{
     width: 200px;
 }
 
-#acordeonAdmin div.panel div.panelDer{
+div.panelIzq div.subpanel div.panelProyecto{
+    display: inline-block;
+}
+
+div.panelIzq div.subpanel div.panelProyecto select{
+    width: 200px;
+}
+
+div.panelDer{
     display: inline-block;
     width: 59%;
     height: 100%;
@@ -128,7 +136,7 @@ and open the template in the editor.
     color: #2779aa;
 }
 
-#listaActividades{
+#listaActividades, #listaActividadesConsultor{
     overflow: auto;
 }
 

@@ -69,12 +69,15 @@ function login(){
             }else{
                 usuarioEnSesion = response.split("|");
                 $("#LoginPanel").hide();
+                $("#idUsuario").val(usuarioEnSesion[2]);
                 if(usuarioEnSesion[4].match("administrador")){
                     initAdministrador();
                     $("#administrador").fadeIn();
                 }else if(usuarioEnSesion[4].match("pm")){
                     $("#pm").fadeIn();
                 }else if(usuarioEnSesion[4].match("consultor")){
+                    initConsultor();
+                    actividadesDelConsultor2();
                     $("#consultor").fadeIn();
                 }
             }
@@ -110,6 +113,8 @@ function haySession(){
                         }else if(usuarioEnSesion[4].match("pm")){
                             $("#pm").fadeIn();
                         }else if(usuarioEnSesion[4].match("consultor")){
+                            initConsultor();
+                            actividadesDelConsultor2();
                             $("#consultor").fadeIn();
                         }
                     }
@@ -146,7 +151,9 @@ function initAdministrador(){
     cargarUsuarios();
     cargarClientes();
     cargarTipoActividades();
+    cargarProyectos();
     $("#botonEditarActividad").hide();
+    $("#botonEliminarActividad").hide();
     $("#botonCancelarActividad").hide();
     $("#acordeonAdmin").accordion();
     $("#listaConsultores").selectmenu({
@@ -158,11 +165,22 @@ function initAdministrador(){
     $("#jornada").selectmenu();
     $("#listaClientes").selectmenu();
     $("#tipoActividad").selectmenu();
+    $("#proyecto").selectmenu();
     $("#fechaActividad").datepicker({
         dateFormat: 'dd-mm-yy',
         onSelect: function(){
             actividadesDelConsultor();
             resetFormularioActividades();
+        }
+    });
+}
+
+function initConsultor(){
+    $("#acordeonConsultor").accordion();
+    $("#fechaActividadConsultor").datepicker({
+        dateFormat: 'dd-mm-yy',
+        onSelect: function(){
+            actividadesDelConsultor2();
         }
     });
 }
@@ -210,7 +228,7 @@ function actividadesDelConsultor(){
         $.ajax({
             url: "/MSL_GestionDeActividades/Operaciones",
             type: "POST",
-            data: {accion: "getListaActividadesDeConsultor", consultor: $("#listaConsultores").val(), fecha: $("#fechaActividad").val()},
+            data: {accion: "getListaActividadesDeConsultor", consultor: $("#listaConsultores").val(), porDia: $("#porDia").prop('checked'), fecha: $("#fechaActividad").val()},
             success:function(response){
                 if(response.match("^error")){
                     mostrarMensaje(response);
@@ -220,6 +238,21 @@ function actividadesDelConsultor(){
             }
         });
     }
+}
+
+function actividadesDelConsultor2(){
+    $.ajax({
+        url: "/MSL_GestionDeActividades/Operaciones",
+        type: "POST",
+        data: {accion: "getListaActividadesDeConsultor", consultor: $("#idUsuario").val(), fecha: $("#fechaActividadConsultor").val()},
+        success:function(response){
+            if(response.match("^error")){
+                mostrarMensaje(response);
+            }else{
+                $("#listaActividadesConsultor").html(response);
+            }
+        }
+    });
 }
 
 function agregarActividadAConsultor(){
@@ -233,6 +266,7 @@ function agregarActividadAConsultor(){
                 jornada: $("#jornada").val(),
                 cliente: $("#listaClientes").val(),
                 tipoActividad: $("#tipoActividad").val(),
+                idProyecto: $("#proyecto").val(),
                 descripcion: $("#descripcion").val()},
             success:function(response){
                 if(response.match("^error")){
@@ -247,7 +281,7 @@ function agregarActividadAConsultor(){
     }
 }
 
-function selecionarActividad(idActividad, consultor, fecha, jornada, cliente, tipoActividad, descripcion){
+function selecionarActividad(idActividad, consultor, fecha, jornada, cliente, tipoActividad, idProyecto, descripcion){
     $("#idActividad").val(idActividad);
     
     $("#listaConsultores").val(consultor);
@@ -264,6 +298,14 @@ function selecionarActividad(idActividad, consultor, fecha, jornada, cliente, ti
     
     $("#tipoActividad").val(tipoActividad);
     $("#tipoActividad").selectmenu("refresh");
+    
+    if(idProyecto === '0'){
+        $("#proyecto").val("");
+        $("#proyecto").selectmenu("refresh");
+    }else{
+        $("#proyecto").val(idProyecto);
+        $("#proyecto").selectmenu("refresh");
+    }
     
     $("#descripcion").val(descripcion);
     
@@ -284,6 +326,9 @@ function resetFormularioActividades(){
     
     $("#tipoActividad").val("");
     $("#tipoActividad").selectmenu("refresh");
+    
+    $("#proyecto").val("");
+    $("#proyecto").selectmenu("refresh");
     
     $("#descripcion").val("");
     
@@ -307,6 +352,9 @@ function cancelarEditarActividad(){
     $("#tipoActividad").val("");
     $("#tipoActividad").selectmenu("refresh");
     
+    $("#proyecto").val("");
+    $("#proyecto").selectmenu("refresh");
+    
     $("#descripcion").val("");
     
     $("#botonEditarActividad").hide();
@@ -327,6 +375,7 @@ function deshabilitarActividadAConsultor(){
                 jornada: $("#jornada").val(),
                 cliente: $("#listaClientes").val(),
                 tipoActividad: $("#tipoActividad").val(),
+                idProyecto: $("#proyecto").val(),
                 descripcion: $("#descripcion").val()},
             success:function(response){
                 if(response.match("^error")){
@@ -340,4 +389,51 @@ function deshabilitarActividadAConsultor(){
     }else{
         mostrarMensaje("error|Seleccione Todos los Datos|Es necesario que el consultor, la jornada, el ciente y el tipo de actividad sean seleccionadas");
     }
+}
+
+function editarActividadAConsultor(){
+    if($("#listaConsultores").val() !== "" && $("#jornada").val() !== "" && $("#listaClientes").val() !== "" && $("#panelTipoActividad").val() !== ""){
+        $.ajax({
+            url: "/MSL_GestionDeActividades/Operaciones",
+            type: "POST",
+            data: {accion: "editarActividadDeConsultar", 
+                idActividad: $("#idActividad").val(),
+                consultor: $("#listaConsultores").val(), 
+                fecha: $("#fechaActividad").val(),
+                jornada: $("#jornada").val(),
+                cliente: $("#listaClientes").val(),
+                tipoActividad: $("#tipoActividad").val(),
+                idProyecto: $("#proyecto").val(),
+                descripcion: $("#descripcion").val()},
+            success:function(response){
+                if(response.match("^error")){
+                    mostrarMensaje(response);
+                }else{
+                    $("#listaActividades").html(response);
+                    resetFormularioActividades();
+                }
+            }
+        });
+    }else{
+        mostrarMensaje("error|Seleccione Todos los Datos|Es necesario que el consultor, la jornada, el ciente y el tipo de actividad sean seleccionadas");
+    }
+}
+
+function cargarProyectos(){
+    $.ajax({
+        url: "/MSL_GestionDeActividades/Operaciones",
+        type: "POST",
+        data: {accion: "getListaProyectos"},
+        success:function(response){
+            if(response.match("^error")){
+                mostrarMensaje(response);
+            }else{
+                var proyectos = response.split("|");
+                for(var i = 0; i < proyectos.length; i = i + 1){
+                    var proyecto = proyectos[i].split("¨");
+                    $("#proyecto").html($("#proyecto").html() + "<option value=\"" + proyecto[0] + "\">" + proyecto[1] + "</option>");
+                }
+            }
+        }
+    });
 }

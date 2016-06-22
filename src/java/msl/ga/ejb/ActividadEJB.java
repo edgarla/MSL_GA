@@ -46,8 +46,11 @@ public class ActividadEJB {
         try (Connection conn = DriverManager.getConnection(msl.ga.db.DbInfo.getUrlString())) {
             try (Statement st = conn.createStatement()) {
                 try (ResultSet r = st.executeQuery(this.getQueryHayActividadEnJornada(idProgramacion, fecha, jornada))) {
-                    return r.next();
-                    
+                    int nActividades = 0;
+                    while(r.next()){
+                        nActividades = nActividades + 1;
+                    }
+                    return (nActividades < 2);
                 }
             }
         }
@@ -55,12 +58,12 @@ public class ActividadEJB {
     
     private String getQueryCrearActividad(Actividad a) throws ClassNotFoundException, SQLException{
         SimpleDateFormat sdf = new SimpleDateFormat("dd-mm-yyyy");
-        return "insert into MSL_GA_SCHEMA.Actividad (id_actividad, id_programacion, fecha_programacion, id_organizacion, jornada, id_tipo_actividad, estado, descripcion) values (" + this.getSiguienteIdActividad()+ ", " + a.getIdProgramacion() + ", '" + sdf.format(a.getFechaDeEjecucion()) + "', '" + a.getIdCliente() + "', " + a.getJornada() + ", " + a.getTipoActividad() + ", " + a.getEstado() + ", '" + a.getDescripcion() + "')";
+        return "insert into MSL_GA_SCHEMA.Actividad (id_actividad, id_programacion, fecha_programacion, id_organizacion, jornada, id_tipo_actividad, estado, id_proyecto, descripcion) values (" + this.getSiguienteIdActividad()+ ", " + a.getIdProgramacion() + ", '" + sdf.format(a.getFechaDeEjecucion()) + "', '" + a.getIdCliente() + "', " + a.getJornada() + ", " + a.getTipoActividad() + ", " + a.getEstado() + ", " + a.getIdProyecto() + " , '" + a.getDescripcion() + "')";
     }
     
     public void guardarActividad(Actividad a) throws ClassNotFoundException, SQLException, Exception{
         SimpleDateFormat sdf = new SimpleDateFormat("dd-mm-yyyy");
-        if(!this.hayActividadEnJornada(a.getIdProgramacion(), sdf.format(a.getFechaDeEjecucion()), a.getJornada())){
+        if(this.hayActividadEnJornada(a.getIdProgramacion(), sdf.format(a.getFechaDeEjecucion()), a.getJornada())){
             Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
             try (Connection conn = DriverManager.getConnection(msl.ga.db.DbInfo.getUrlString())) {
                 try (Statement st = conn.createStatement()) {
@@ -72,22 +75,26 @@ public class ActividadEJB {
         }
     }
     
-    private String getQueryListadoDeActividadPorProgramacion(Programacion p){
-        return "select * from MSL_GA_SCHEMA.Actividad a where a.id_programacion = " + p.getIdProgramacion() + " and a.estado = 0";
+    private String getQueryListadoDeActividadPorProgramacion(Programacion p, boolean porDia, String fecha){
+        if(porDia){
+            return "select * from MSL_GA_SCHEMA.Actividad a where a.id_programacion = " + p.getIdProgramacion() + " and a.fecha_programacion = '" + fecha + "'  and a.estado = 0 order by 3, 5, 1";
+        }else{
+            return "select * from MSL_GA_SCHEMA.Actividad a where a.id_programacion = " + p.getIdProgramacion() + " and a.estado = 0 order by 3, 5, 1";
+        }
     }
     
-    public ArrayList getActividadesDeProgramacion(Programacion p) throws ClassNotFoundException, SQLException{
+    public ArrayList getActividadesDeProgramacion(Programacion p, boolean porDia, String fecha) throws ClassNotFoundException, SQLException{
         Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
         ArrayList result = null;
         try (Connection conn = DriverManager.getConnection(msl.ga.db.DbInfo.getUrlString())) {
             try (Statement st = conn.createStatement()) {
-                try (ResultSet r = st.executeQuery(this.getQueryListadoDeActividadPorProgramacion(p))) {
+                try (ResultSet r = st.executeQuery(this.getQueryListadoDeActividadPorProgramacion(p, porDia, fecha))) {
                     while(r.next()){
                         Actividad a;
                         if(result == null){
                             result = new ArrayList();
                         }
-                        a = new Actividad(r.getInt("id_actividad"), r.getInt("id_programacion"), r.getDate("fecha_programacion"), r.getString("id_organizacion") ,r.getInt("jornada"), r.getInt("id_tipo_actividad"), r.getInt("estado"), r.getString("descripcion"));
+                        a = new Actividad(r.getInt("id_actividad"), r.getInt("id_programacion"), r.getDate("fecha_programacion"), r.getString("id_organizacion") ,r.getInt("jornada"), r.getInt("id_tipo_actividad"), r.getInt("id_proyecto"), r.getInt("estado"), r.getString("descripcion"));
                         result.add(a);
                     }
                 }

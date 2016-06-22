@@ -11,9 +11,6 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -22,11 +19,13 @@ import javax.servlet.http.HttpServletResponse;
 import msl.ga.ejb.ActividadEJB;
 import msl.ga.ejb.ClienteEJB;
 import msl.ga.ejb.ProgramacionEJB;
+import msl.ga.ejb.ProyectoEJB;
 import msl.ga.ejb.TipoActividadEJB;
 import msl.ga.ejb.UsuarioEJB;
 import msl.ga.modelo.Actividad;
 import msl.ga.modelo.Cliente;
 import msl.ga.modelo.Programacion;
+import msl.ga.modelo.Proyecto;
 import msl.ga.modelo.TipoActividad;
 import msl.ga.modelo.Usuario;
 
@@ -40,6 +39,7 @@ public class Operaciones extends HttpServlet {
     private ArrayList listaUsuarios;
     private ArrayList listaClientes;
     private ArrayList listaTipoActividades;
+    private ArrayList listaProyectos;
     private Usuario usuarioEnSesion;
     private String rol;
 
@@ -92,6 +92,14 @@ public class Operaciones extends HttpServlet {
                             this.getListaDeActividadesPorConsultor(request, response);
                         }
                         break;
+                    case "editarActividadDeConsultar":
+                        if(this.editarActividadDeConsultar(request, response)){
+                            this.getListaDeActividadesPorConsultor(request, response);
+                        }
+                        break;
+                    case "getListaProyectos":
+                        this.getListaProyectos(response);
+                        break;
                 }
             }
         }
@@ -119,6 +127,13 @@ public class Operaciones extends HttpServlet {
                 this.cargarTiposActividades();
             } catch (ClassNotFoundException | SQLException ex) {
                 response.getWriter().println("error|cargando tipo de actividades|" + ex.getMessage());
+            }
+        }
+        if(this.listaProyectos == null){
+            try {
+                this.cargarListaProyectos();
+            } catch (ClassNotFoundException | SQLException ex) {
+                response.getWriter().println("error|cargando lista de proyectos|" + ex.getMessage());
             }
         }
         return true;
@@ -217,7 +232,13 @@ public class Operaciones extends HttpServlet {
     private void getListaDeActividadesPorConsultor(HttpServletRequest request, HttpServletResponse response) throws IOException{
         String usuarioParameter = request.getParameter("consultor");
         String fechaParameter = request.getParameter("fecha");
+        String porDiaParameter = request.getParameter("porDia");
         String listaActividades = "";
+        
+        boolean porDia = false;
+        if(porDiaParameter != null && porDiaParameter.equals("true")){
+            porDia = true;
+        }
         
         Usuario usuario = null;
         int i = 0;
@@ -234,10 +255,10 @@ public class Operaciones extends HttpServlet {
         try {
             Programacion p = programacionEJB.getProgramacion(usuario, fechaParameter, false);
             if(p != null){
-                ArrayList actividades = actividadesEJB.getActividadesDeProgramacion(p);
+                ArrayList actividades = actividadesEJB.getActividadesDeProgramacion(p, porDia, fechaParameter);
                 for(i = 0; i < actividades.size(); i = i + 1){
                     Actividad a = (Actividad) actividades.get(i);
-                    listaActividades = listaActividades + a.toHtml(usuario, this.listaTipoActividades);
+                    listaActividades = listaActividades + a.toHtml(usuario, this.listaTipoActividades, this.listaProyectos);
                 }
                 response.getWriter().println(listaActividades);
             }
@@ -252,6 +273,7 @@ public class Operaciones extends HttpServlet {
         String jornadaParameter = request.getParameter("jornada");
         String clienteParamenter = request.getParameter("cliente");
         String tipoActividadParameter = request.getParameter("tipoActividad");
+        String idProyectoParameter = request.getParameter("idProyecto");
         String descripcionParameter = request.getParameter("descripcion");
         String listaActividades = "";
         
@@ -265,13 +287,17 @@ public class Operaciones extends HttpServlet {
             i = i + 1;
         }
         
+        if(idProyectoParameter == null || idProyectoParameter.compareTo("") == 0){
+            idProyectoParameter = "0";
+        }
+        
         ProgramacionEJB programacionEJB = new ProgramacionEJB();
         ActividadEJB actividadesEJB = new ActividadEJB();
         
         try {
             Programacion p = programacionEJB.getProgramacion(usuario, fechaParameter, true);
             SimpleDateFormat sdf = new SimpleDateFormat("dd-mm-yyyy");
-            Actividad a = new Actividad(0, p.getIdProgramacion(), sdf.parse(fechaParameter), clienteParamenter, Integer.parseInt(jornadaParameter), Integer.parseInt(tipoActividadParameter), 0, descripcionParameter);
+            Actividad a = new Actividad(0, p.getIdProgramacion(), sdf.parse(fechaParameter), clienteParamenter, Integer.parseInt(jornadaParameter), Integer.parseInt(tipoActividadParameter), Integer.parseInt(idProyectoParameter), 0, descripcionParameter);
             actividadesEJB.guardarActividad(a);
             return true;
         } catch (ClassNotFoundException | SQLException | ParseException ex) {
@@ -291,6 +317,7 @@ public class Operaciones extends HttpServlet {
             String jornadaParameter = request.getParameter("jornada");
             String clienteParamenter = request.getParameter("cliente");
             String tipoActividadParameter = request.getParameter("tipoActividad");
+            String idProyectoParameter = request.getParameter("idProyecto");
             String descripcionParameter = request.getParameter("descripcion");
             
             Usuario usuario = null;
@@ -302,12 +329,16 @@ public class Operaciones extends HttpServlet {
                 }
                 i = i + 1;
             }
+            
+            if(idProyectoParameter == null || idProyectoParameter.compareTo("") == 0){
+                idProyectoParameter = "0";
+            }
 
             ProgramacionEJB programacionEJB = new ProgramacionEJB();
             
             Programacion p = programacionEJB.getProgramacion(usuario, fechaParameter, true);
             SimpleDateFormat sdf = new SimpleDateFormat("dd-mm-yyyy");
-            Actividad a = new Actividad(Integer.parseInt(idActividadParameter), p.getIdProgramacion(), sdf.parse(fechaParameter), clienteParamenter, Integer.parseInt(jornadaParameter), Integer.parseInt(tipoActividadParameter), 1, descripcionParameter);
+            Actividad a = new Actividad(Integer.parseInt(idActividadParameter), p.getIdProgramacion(), sdf.parse(fechaParameter), clienteParamenter, Integer.parseInt(jornadaParameter), Integer.parseInt(tipoActividadParameter), Integer.parseInt(idProyectoParameter), 1, descripcionParameter);
             ActividadEJB actividadesEJB = new ActividadEJB();
             actividadesEJB.ActualizarEstadoActividad(a);
             return true;
@@ -315,6 +346,67 @@ public class Operaciones extends HttpServlet {
             response.getWriter().println("error|Error Actualizando Estado de Actividad|" + ex.getMessage());
             return false;
         }
+    }
+    
+    private boolean editarActividadDeConsultar(HttpServletRequest request, HttpServletResponse response) throws IOException{
+        try {
+            String idActividadParameter = request.getParameter("idActividad");
+            String usuarioParameter = request.getParameter("consultor");
+            String fechaParameter = request.getParameter("fecha");
+            String jornadaParameter = request.getParameter("jornada");
+            String clienteParamenter = request.getParameter("cliente");
+            String tipoActividadParameter = request.getParameter("tipoActividad");
+            String idProyectoParameter = request.getParameter("idProyecto");
+            String descripcionParameter = request.getParameter("descripcion");
+            
+            Usuario usuario = null;
+            int i = 0;
+            while(i < this.listaUsuarios.size() - 1 && usuario == null){
+                Usuario u = (Usuario) this.listaUsuarios.get(i);
+                if(u.getUserid().equals(usuarioParameter)){
+                    usuario =  u;
+                }
+                i = i + 1;
+            }
+            
+            if(idProyectoParameter == null || idProyectoParameter.compareTo("") == 0){
+                idProyectoParameter = "0";
+            }
+
+            ProgramacionEJB programacionEJB = new ProgramacionEJB();
+            ActividadEJB actividadesEJB = new ActividadEJB();
+            
+            Programacion p = programacionEJB.getProgramacion(usuario, fechaParameter, true);
+            SimpleDateFormat sdf = new SimpleDateFormat("dd-mm-yyyy");
+            Actividad a = new Actividad(Integer.parseInt(idActividadParameter), p.getIdProgramacion(), sdf.parse(fechaParameter), clienteParamenter, Integer.parseInt(jornadaParameter), Integer.parseInt(tipoActividadParameter), Integer.parseInt(idProyectoParameter), 1, descripcionParameter);
+            actividadesEJB.ActualizarEstadoActividad(a);
+            
+            Actividad actividadEditada = new Actividad(0, p.getIdProgramacion(), sdf.parse(fechaParameter), clienteParamenter, Integer.parseInt(jornadaParameter), Integer.parseInt(tipoActividadParameter), Integer.parseInt(idProyectoParameter), 0, descripcionParameter);
+            actividadesEJB.guardarActividad(actividadEditada);
+            return true;
+        } catch (ClassNotFoundException | SQLException | ParseException ex) {
+            response.getWriter().println("error|Error Editando Actividad|" + ex.getMessage());
+            return false;
+        } catch (Exception ex) {
+            response.getWriter().println("error|Error Editando Actividad|" + ex.getMessage());
+            return false;
+        }
+    }
+    
+    private void cargarListaProyectos() throws ClassNotFoundException, SQLException{
+        ProyectoEJB proyectoEJB = new ProyectoEJB();
+        this.listaProyectos =  proyectoEJB.getListaProyectos();
+    }
+    
+    private void getListaProyectos(HttpServletResponse response) throws IOException{
+        String stringListaProyectos = "";
+        for(int i = 0; i < this.listaProyectos.size() - 2; i = i + 1){
+            Proyecto p = (Proyecto) this.listaProyectos.get(i);
+            stringListaProyectos = stringListaProyectos + p.getKey() + "|";
+        }
+        Proyecto p = (Proyecto) this.listaProyectos.get(this.listaProyectos.size() - 1);
+        stringListaProyectos = stringListaProyectos + p.getKey();
+        response.getWriter().println(stringListaProyectos);
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
