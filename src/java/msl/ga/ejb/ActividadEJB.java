@@ -5,6 +5,7 @@
  */
 package msl.ga.ejb;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -12,6 +13,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import msl.ga.db.DbInfo;
 import msl.ga.modelo.Actividad;
 import msl.ga.modelo.Programacion;
 
@@ -20,12 +22,17 @@ import msl.ga.modelo.Programacion;
  * @author edgarloraariza
  */
 public class ActividadEJB {
+    private final DbInfo dbInfo;
     private final String querySiguienteIdActividad = "select (case when max(id_actividad) is null then 0 else max(id_actividad) end) + 1 as next_id_actividad from MSL_GA_SCHEMA.Actividad";
+
+    public ActividadEJB(DbInfo dbInfo) {
+        this.dbInfo = dbInfo;
+    }
     
-    private int getSiguienteIdActividad() throws ClassNotFoundException, SQLException{
-        Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+    private int getSiguienteIdActividad() throws ClassNotFoundException, SQLException, IOException{
+        Class.forName(dbInfo.getDriverMslGaDB());
         int result = 0;
-        try (Connection conn = DriverManager.getConnection(msl.ga.db.DbInfo.getUrlString())) {
+        try (Connection conn = DriverManager.getConnection(dbInfo.getUrlMslGaDB(), dbInfo.getUsrMslGaDB(), dbInfo.getPasMslGaDB())) {
             try (Statement st = conn.createStatement()) {
                 try (ResultSet r = st.executeQuery(querySiguienteIdActividad)) {
                     while(r.next()){
@@ -41,9 +48,9 @@ public class ActividadEJB {
         return "select * from MSL_GA_SCHEMA.Actividad a where a.id_programacion = " + idProgramacion + " and a.fecha_programacion = '" + fecha + "' and a.jornada = " + jornada + " and a.estado = 0";
     }
     
-    private boolean hayActividadEnJornada(int idProgramacion, String fecha, int jornada) throws ClassNotFoundException, SQLException{
-        Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-        try (Connection conn = DriverManager.getConnection(msl.ga.db.DbInfo.getUrlString())) {
+    private boolean hayActividadEnJornada(int idProgramacion, String fecha, int jornada) throws ClassNotFoundException, SQLException, IOException{
+        Class.forName(dbInfo.getDriverMslGaDB());
+        try (Connection conn = DriverManager.getConnection(dbInfo.getUrlMslGaDB(), dbInfo.getUsrMslGaDB(), dbInfo.getPasMslGaDB())) {
             try (Statement st = conn.createStatement()) {
                 try (ResultSet r = st.executeQuery(this.getQueryHayActividadEnJornada(idProgramacion, fecha, jornada))) {
                     int nActividades = 0;
@@ -56,7 +63,7 @@ public class ActividadEJB {
         }
     }
     
-    private String getQueryCrearActividad(Actividad a) throws ClassNotFoundException, SQLException{
+    private String getQueryCrearActividad(Actividad a) throws ClassNotFoundException, SQLException, IOException{
         SimpleDateFormat sdf = new SimpleDateFormat("dd-mm-yyyy");
         return "insert into MSL_GA_SCHEMA.Actividad (id_actividad, id_programacion, fecha_programacion, id_organizacion, jornada, id_tipo_actividad, estado, id_proyecto, descripcion) values (" + this.getSiguienteIdActividad()+ ", " + a.getIdProgramacion() + ", '" + sdf.format(a.getFechaDeEjecucion()) + "', '" + a.getIdCliente() + "', " + a.getJornada() + ", " + a.getTipoActividad() + ", " + a.getEstado() + ", " + a.getIdProyecto() + " , '" + a.getDescripcion() + "')";
     }
@@ -64,8 +71,8 @@ public class ActividadEJB {
     public void guardarActividad(Actividad a) throws ClassNotFoundException, SQLException, Exception{
         SimpleDateFormat sdf = new SimpleDateFormat("dd-mm-yyyy");
         if(this.hayActividadEnJornada(a.getIdProgramacion(), sdf.format(a.getFechaDeEjecucion()), a.getJornada())){
-            Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-            try (Connection conn = DriverManager.getConnection(msl.ga.db.DbInfo.getUrlString())) {
+            Class.forName(dbInfo.getDriverMslGaDB());
+            try (Connection conn = DriverManager.getConnection(dbInfo.getUrlMslGaDB(), dbInfo.getUsrMslGaDB(), dbInfo.getPasMslGaDB())) {
                 try (Statement st = conn.createStatement()) {
                     st.executeUpdate(this.getQueryCrearActividad(a));
                 }
@@ -83,10 +90,10 @@ public class ActividadEJB {
         }
     }
     
-    public ArrayList getActividadesDeProgramacion(Programacion p, boolean porDia, String fecha) throws ClassNotFoundException, SQLException{
-        Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+    public ArrayList getActividadesDeProgramacion(Programacion p, boolean porDia, String fecha) throws ClassNotFoundException, SQLException, IOException{
+        Class.forName(dbInfo.getDriverMslGaDB());
         ArrayList result = null;
-        try (Connection conn = DriverManager.getConnection(msl.ga.db.DbInfo.getUrlString())) {
+        try (Connection conn = DriverManager.getConnection(dbInfo.getUrlMslGaDB(), dbInfo.getUsrMslGaDB(), dbInfo.getPasMslGaDB())) {
             try (Statement st = conn.createStatement()) {
                 try (ResultSet r = st.executeQuery(this.getQueryListadoDeActividadPorProgramacion(p, porDia, fecha))) {
                     while(r.next()){
@@ -107,9 +114,9 @@ public class ActividadEJB {
         return "update MSL_GA_SCHEMA.Actividad set estado = " + a.getEstado() + " where id_actividad = " + a.getIdActividad();
     }
     
-    public void ActualizarEstadoActividad(Actividad a) throws ClassNotFoundException, SQLException{
-        Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-        try (Connection conn = DriverManager.getConnection(msl.ga.db.DbInfo.getUrlString())) {
+    public void ActualizarEstadoActividad(Actividad a) throws ClassNotFoundException, SQLException, IOException{
+        Class.forName(dbInfo.getDriverMslGaDB());
+        try (Connection conn = DriverManager.getConnection(dbInfo.getUrlMslGaDB(), dbInfo.getUsrMslGaDB(), dbInfo.getPasMslGaDB())) {
                 try (Statement st = conn.createStatement()) {
                     st.executeUpdate(this.getQueryActualizarEstadoActividad(a));
                 }

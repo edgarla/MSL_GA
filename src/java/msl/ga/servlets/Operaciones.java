@@ -11,11 +11,14 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import msl.ga.db.DbInfo;
 import msl.ga.ejb.ActividadEJB;
 import msl.ga.ejb.ClienteEJB;
 import msl.ga.ejb.ProgramacionEJB;
@@ -42,6 +45,7 @@ public class Operaciones extends HttpServlet {
     private ArrayList listaProyectos;
     private Usuario usuarioEnSesion;
     private String rol;
+    private DbInfo dbInfo;
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -57,7 +61,7 @@ public class Operaciones extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
         try (PrintWriter out = response.getWriter()) {
             /* TODO output your page here. You may use following sample code. */
-            if(this.inicializacion(response)){
+            if(this.inicializacion(request, response)){
                 String accion = request.getParameter("accion");
                 
                 switch (accion) {
@@ -102,10 +106,13 @@ public class Operaciones extends HttpServlet {
                         break;
                 }
             }
+        } catch (Exception ex) {
+            response.getWriter().println("error|Error General|" + ex.getMessage());
         }
     }
     
-    private boolean inicializacion(HttpServletResponse response) throws IOException{
+    private boolean inicializacion(HttpServletRequest request, HttpServletResponse response) throws IOException, Exception{
+        dbInfo = new DbInfo(getClass().getResource("/").getPath());
         if(this.listaUsuarios == null){
             try {
                 this.cargarUsuarios();
@@ -139,13 +146,13 @@ public class Operaciones extends HttpServlet {
         return true;
     }
     
-    private void cargarUsuarios() throws ClassNotFoundException, SQLException{
-        UsuarioEJB usuarioEJB = new UsuarioEJB();
+    private void cargarUsuarios() throws ClassNotFoundException, SQLException, IOException{
+        UsuarioEJB usuarioEJB = new UsuarioEJB(this.dbInfo);
         this.listaUsuarios = usuarioEJB.getListaDeUsuarios();
     }
     
-    private void cargarClientes() throws ClassNotFoundException, SQLException{
-        ClienteEJB clienteEJB = new ClienteEJB();
+    private void cargarClientes() throws ClassNotFoundException, SQLException, IOException{
+        ClienteEJB clienteEJB = new ClienteEJB(this.dbInfo);
         this.listaClientes = clienteEJB.getListaDeClientes();
     }
     
@@ -213,8 +220,8 @@ public class Operaciones extends HttpServlet {
         response.getWriter().println(stringListaClientes);
     }
     
-    private void cargarTiposActividades() throws ClassNotFoundException, SQLException{
-        TipoActividadEJB tipoActividadEJB = new TipoActividadEJB();
+    private void cargarTiposActividades() throws ClassNotFoundException, SQLException, IOException{
+        TipoActividadEJB tipoActividadEJB = new TipoActividadEJB(this.dbInfo);
         this.listaTipoActividades = tipoActividadEJB.getListaDeActividades();
     }
     
@@ -250,8 +257,8 @@ public class Operaciones extends HttpServlet {
             i = i + 1;
         }
         
-        ProgramacionEJB programacionEJB = new ProgramacionEJB();
-        ActividadEJB actividadesEJB = new ActividadEJB();
+        ProgramacionEJB programacionEJB = new ProgramacionEJB(this.dbInfo);
+        ActividadEJB actividadesEJB = new ActividadEJB(this.dbInfo);
         try {
             Programacion p = programacionEJB.getProgramacion(usuario, fechaParameter, false);
             if(p != null){
@@ -291,8 +298,8 @@ public class Operaciones extends HttpServlet {
             idProyectoParameter = "0";
         }
         
-        ProgramacionEJB programacionEJB = new ProgramacionEJB();
-        ActividadEJB actividadesEJB = new ActividadEJB();
+        ProgramacionEJB programacionEJB = new ProgramacionEJB(this.dbInfo);
+        ActividadEJB actividadesEJB = new ActividadEJB(this.dbInfo);
         
         try {
             Programacion p = programacionEJB.getProgramacion(usuario, fechaParameter, true);
@@ -334,12 +341,12 @@ public class Operaciones extends HttpServlet {
                 idProyectoParameter = "0";
             }
 
-            ProgramacionEJB programacionEJB = new ProgramacionEJB();
+            ProgramacionEJB programacionEJB = new ProgramacionEJB(this.dbInfo);
             
             Programacion p = programacionEJB.getProgramacion(usuario, fechaParameter, true);
             SimpleDateFormat sdf = new SimpleDateFormat("dd-mm-yyyy");
             Actividad a = new Actividad(Integer.parseInt(idActividadParameter), p.getIdProgramacion(), sdf.parse(fechaParameter), clienteParamenter, Integer.parseInt(jornadaParameter), Integer.parseInt(tipoActividadParameter), Integer.parseInt(idProyectoParameter), 1, descripcionParameter);
-            ActividadEJB actividadesEJB = new ActividadEJB();
+            ActividadEJB actividadesEJB = new ActividadEJB(this.dbInfo);
             actividadesEJB.ActualizarEstadoActividad(a);
             return true;
         } catch (ClassNotFoundException | SQLException | ParseException ex) {
@@ -373,8 +380,8 @@ public class Operaciones extends HttpServlet {
                 idProyectoParameter = "0";
             }
 
-            ProgramacionEJB programacionEJB = new ProgramacionEJB();
-            ActividadEJB actividadesEJB = new ActividadEJB();
+            ProgramacionEJB programacionEJB = new ProgramacionEJB(this.dbInfo);
+            ActividadEJB actividadesEJB = new ActividadEJB(this.dbInfo);
             
             Programacion p = programacionEJB.getProgramacion(usuario, fechaParameter, true);
             SimpleDateFormat sdf = new SimpleDateFormat("dd-mm-yyyy");
@@ -393,8 +400,8 @@ public class Operaciones extends HttpServlet {
         }
     }
     
-    private void cargarListaProyectos() throws ClassNotFoundException, SQLException{
-        ProyectoEJB proyectoEJB = new ProyectoEJB();
+    private void cargarListaProyectos() throws ClassNotFoundException, SQLException, IOException{
+        ProyectoEJB proyectoEJB = new ProyectoEJB(this.dbInfo);
         this.listaProyectos =  proyectoEJB.getListaProyectos();
     }
     

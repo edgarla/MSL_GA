@@ -5,12 +5,14 @@
  */
 package msl.ga.ejb;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import msl.ga.db.DbInfo;
 import msl.ga.modelo.TipoActividad;
 
 /**
@@ -18,12 +20,17 @@ import msl.ga.modelo.TipoActividad;
  * @author edgarloraariza
  */
 public class TipoActividadEJB {
+    private final DbInfo dbInfo;
     private final String queryConsultaActividades = "select * from MSL_GA_SCHEMA.Tipo_Actividad";
+
+    public TipoActividadEJB(DbInfo dbInfo) {
+        this.dbInfo = dbInfo;
+    }
     
-    public ArrayList getListaDeActividades() throws ClassNotFoundException, SQLException{
-        Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+    public ArrayList getListaDeActividades() throws ClassNotFoundException, SQLException, IOException{
+        Class.forName(dbInfo.getDriverServiceDeskDB());
         ArrayList result = null;
-        try (Connection conn = DriverManager.getConnection(msl.ga.db.DbInfo.getUrlString())) {
+        try (Connection conn = DriverManager.getConnection(dbInfo.getUrlServiceDeskDB(), dbInfo.getUsrServiceDesk(), dbInfo.getPasServiceDesk())) {
             try (Statement st = conn.createStatement()) {
                 try (ResultSet r = st.executeQuery(queryConsultaActividades)) {
                     while(r.next()){

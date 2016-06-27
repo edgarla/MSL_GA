@@ -5,12 +5,14 @@
  */
 package msl.ga.ejb;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import msl.ga.db.DbInfo;
 import msl.ga.modelo.Proyecto;
 
 /**
@@ -18,12 +20,17 @@ import msl.ga.modelo.Proyecto;
  * @author edgarloraariza
  */
 public class ProyectoEJB {
+    private final DbInfo dbInfo;
     private final String queryGetListaProyectos = "select p.id, p.nom_pro from zProyecto p where p.est_pro <> 'Cerrado';";
+
+    public ProyectoEJB(DbInfo dbInfo) {
+        this.dbInfo = dbInfo;
+    }
     
-    public ArrayList getListaProyectos() throws ClassNotFoundException, SQLException{
+    public ArrayList getListaProyectos() throws ClassNotFoundException, SQLException, IOException{
         ArrayList proyectos = null;
-        Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-        try (Connection conn = DriverManager.getConnection(msl.ga.db.DbInfo.getUrlString())) {
+        Class.forName(dbInfo.getDriverServiceDeskDB());
+        try (Connection conn = DriverManager.getConnection(dbInfo.getUrlServiceDeskDB(), dbInfo.getUsrServiceDesk(), dbInfo.getPasServiceDesk())) {
             try (Statement st = conn.createStatement()) {
                 try (ResultSet r = st.executeQuery(this.queryGetListaProyectos)) {
                     while(r.next()){
