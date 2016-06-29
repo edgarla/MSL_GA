@@ -8,6 +8,7 @@ package msl.ga.modelo;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import org.apache.commons.lang3.StringEscapeUtils;
 
 /**
  *
@@ -151,14 +152,14 @@ public class Actividad {
             stringJornada = "Tarde";
         }
         String html = "";
-        html = html + "<div class=\"actividad\" onclick=\"selecionarActividad('" + this.idActividad + "','" + u.getUserid() + "','" + sdf.format(fechaDeEjecucion) + "','" + this.jornada + "','" + this.idCliente + "','" + ta.getIdTipoActividad() + "','" + p.getIdProyecto() + "','" + this.descripcion + "')\">";
+        html = html + "<div class=\"actividad\" onclick=\"selecionarActividad('" + this.idActividad + "','" + u.getUserid() + "','" + sdf.format(fechaDeEjecucion) + "','" + this.jornada + "','" + this.idCliente + "','" + ta.getIdTipoActividad() + "','" + p.getIdProyecto() + "','" + StringEscapeUtils.escapeHtml4(this.descripcion) + "')\">";
         html = html + "<p class=\"campo\"><span>Actividad No:</span> " + this.idActividad + "</p>";
         html = html + "<p class=\"campo\"><span>Fecha:</span> " + sdf.format(fechaDeEjecucion) + "</p>";
-        html = html + "<p class=\"campo\"><span>Cliente:</span> " + this.idCliente + "</p>";
-        html = html + "<p class=\"campo\"><span>Jornada:</span> " + stringJornada + "</p>";
-        html = html + "<p class=\"campo\"><span>Tipo Actividad:</span> " + ta.getNombre() + "</p>";
-        html = html + "<p class=\"campo\"><span>Proyecto:</span> " + p.getNombre() + "</p>";
-        html = html + "<p class=\"campo\"><span>Descripcion:</span> " + this.descripcion + "</p>";
+        html = html + "<p class=\"campo\"><span>Cliente:</span> " + StringEscapeUtils.escapeHtml4(this.idCliente) + "</p>";
+        html = html + "<p class=\"campo\"><span>Jornada:</span> " + StringEscapeUtils.escapeHtml4(stringJornada) + "</p>";
+        html = html + "<p class=\"campo\"><span>Tipo Actividad:</span> " + StringEscapeUtils.escapeHtml4(ta.getNombre()) + "</p>";
+        html = html + "<p class=\"campo\"><span>Proyecto:</span> " + StringEscapeUtils.escapeHtml4(p.getNombre()) + "</p>";
+        html = html + "<p class=\"campo\"><span>Descripcion:</span> " + StringEscapeUtils.escapeHtml4(this.descripcion) + "</p>";
         html = html + "</div>";
         return html;
     }

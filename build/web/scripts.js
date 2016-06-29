@@ -396,7 +396,7 @@ function editarActividadAConsultor(){
         $.ajax({
             url: "/MSL_GestionDeActividades/Operaciones",
             type: "POST",
-            data: {accion: "editarActividadDeConsultar", 
+            data: {accion: "editarActividadDeConsultor", 
                 idActividad: $("#idActividad").val(),
                 consultor: $("#listaConsultores").val(), 
                 fecha: $("#fechaActividad").val(),

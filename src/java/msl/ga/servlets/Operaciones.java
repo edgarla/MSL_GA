@@ -31,6 +31,8 @@ import msl.ga.modelo.Programacion;
 import msl.ga.modelo.Proyecto;
 import msl.ga.modelo.TipoActividad;
 import msl.ga.modelo.Usuario;
+import msl.ga.util.SendMailTLS;
+import org.apache.commons.lang3.StringEscapeUtils;
 
 /**
  *
@@ -94,11 +96,13 @@ public class Operaciones extends HttpServlet {
                     case "deshabilitarActividad":
                         if(this.deshabilitarActividad(request, response)){
                             this.getListaDeActividadesPorConsultor(request, response);
+                            this.sendEmailNotification(request, response);
                         }
                         break;
-                    case "editarActividadDeConsultar":
-                        if(this.editarActividadDeConsultar(request, response)){
+                    case "editarActividadDeConsultor":
+                        if(this.editarActividadDeConsultor(request, response)){
                             this.getListaDeActividadesPorConsultor(request, response);
+                            this.sendEmailNotification(request, response);
                         }
                         break;
                     case "getListaProyectos":
@@ -355,7 +359,7 @@ public class Operaciones extends HttpServlet {
         }
     }
     
-    private boolean editarActividadDeConsultar(HttpServletRequest request, HttpServletResponse response) throws IOException{
+    private boolean editarActividadDeConsultor(HttpServletRequest request, HttpServletResponse response) throws IOException{
         try {
             String idActividadParameter = request.getParameter("idActividad");
             String usuarioParameter = request.getParameter("consultor");
@@ -414,6 +418,60 @@ public class Operaciones extends HttpServlet {
         Proyecto p = (Proyecto) this.listaProyectos.get(this.listaProyectos.size() - 1);
         stringListaProyectos = stringListaProyectos + p.getKey();
         response.getWriter().println(stringListaProyectos);
+    }
+    
+    private void sendEmailNotification(HttpServletRequest request, HttpServletResponse response) throws IOException{
+        String usuarioParameter = request.getParameter("consultor");
+        String fechaParameter = request.getParameter("fecha");
+        String listaActividades = "";
+        
+        Usuario usuario = null;
+        int i = 0;
+        while(i < this.listaUsuarios.size() - 1 && usuario == null){
+            Usuario u = (Usuario) this.listaUsuarios.get(i);
+            if(u.getUserid().equals(usuarioParameter)){
+                usuario =  u;
+            }
+            i = i + 1;
+        }
+        
+        ProgramacionEJB programacionEJB = new ProgramacionEJB(this.dbInfo);
+        ActividadEJB actividadesEJB = new ActividadEJB(this.dbInfo);
+        try {
+            Programacion p = programacionEJB.getProgramacion(usuario, fechaParameter, false);
+            if(p != null){
+                ArrayList actividades = actividadesEJB.getActividadesDeProgramacion(p, false, fechaParameter);
+                for(i = 0; i < actividades.size(); i = i + 1){
+                    Actividad a = (Actividad) actividades.get(i);
+                    listaActividades = listaActividades + a.toHtml(usuario, this.listaTipoActividades, this.listaProyectos);
+                }
+                
+                String emailContent = "<html>";
+                emailContent = emailContent + "<head>";
+                emailContent = emailContent + "<meta charset=\"UTF-8\">";
+                emailContent = emailContent + "<style>";
+                emailContent = emailContent + ".titulo{text-align: center;font-family: Lucida Grande,Lucida Sans,Arial,sans-serif;font-size: 24px;font-weight: bold;color: #2779aa;}";
+                emailContent = emailContent + "div.actividad{margin-left: 5px;margin-right: 5px;margin-bottom: 2px;padding: 5px;border: 1px solid #aed0ea;}";
+                emailContent = emailContent + "div.actividad p.campo{font-size: 12px;font-family: Lucida Grande,Lucida Sans,Arial,sans-serif;display: inline-block;margin-right: 5px;margin-top: 0px;margin-bottom: 2px;}";
+                emailContent = emailContent + "div.actividad p.campo span{font-weight: bold;font-family: Lucida Grande,Lucida Sans,Arial,sans-serif;font-size: 15px;color: #2779aa;}";
+                emailContent = emailContent + "</style>";
+                emailContent = emailContent + "</head>";
+                emailContent = emailContent + "<body>";
+                emailContent = emailContent + "<h3 class=\"titulo\">" + StringEscapeUtils.escapeHtml4("Actualización de Agenda") + "</h3>";
+                emailContent = emailContent + "<p>Tu agenda ha sido actualizada</p>";
+                emailContent = emailContent + "<div>";
+                emailContent = emailContent + listaActividades;
+                emailContent = emailContent + "</div id=\"listaActividadesConsultor\">";
+                emailContent = emailContent + "</body>";
+                emailContent = emailContent + "</html>";
+                SendMailTLS sendMailTLS = new SendMailTLS();
+                sendMailTLS.sendEmail(usuario.getEmail(), "Actualización de Agenda", emailContent);
+            }
+        } catch (ClassNotFoundException | SQLException ex) {
+            response.getWriter().println("error|Error Enviando Notificación|" + ex.getMessage());
+        } catch (Exception ex) {
+            response.getWriter().println("error|Error Enviando Notificación|" + ex.getMessage());
+        }
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

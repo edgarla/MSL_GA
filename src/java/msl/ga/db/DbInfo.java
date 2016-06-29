@@ -29,10 +29,10 @@ public class DbInfo {
 
     public DbInfo(String path) throws IOException, Exception {
         Properties properties = new Properties();
-        String dbConfigFile = path + "dbConfig.properties";
-        InputStream inputStream = new FileInputStream(dbConfigFile);
+        String MSLGAConfig = path + "MSL.GA.Config.properties";
+        InputStream inputStream = new FileInputStream(MSLGAConfig);
         if(inputStream == null){
-            throw new Exception("No se encuentra archivo de configurcion de base de datos: " + dbConfigFile);
+            throw new Exception("No se encuentra archivo de configurcion de base de datos: " + MSLGAConfig);
         }
         properties.load(inputStream);
         
