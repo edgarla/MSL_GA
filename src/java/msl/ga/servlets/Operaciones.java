@@ -232,7 +232,7 @@ public class Operaciones extends HttpServlet {
     
     private void getListaTipoActividades(HttpServletResponse response) throws IOException{
         String stringListaTipoActividades = "";
-        for(int i = 0; i < this.listaTipoActividades.size() - 2; i = i + 1){
+        for(int i = 0; i < this.listaTipoActividades.size() - 1; i = i + 1){
             TipoActividad ta = (TipoActividad)this.listaTipoActividades.get(i);
             stringListaTipoActividades = stringListaTipoActividades + ta.getKey() + "|";
         }
