@@ -21,12 +21,16 @@ import javax.mail.internet.MimeMessage;
  */
 public class SendMailTLS {
     
+    private String MSLGAConfigPropertiesPathFile;
+    public SendMailTLS(String MSLGAConfigPropertiesPathFile) {
+        this.MSLGAConfigPropertiesPathFile = MSLGAConfigPropertiesPathFile;
+    }
+    
     public void sendEmail(String toEmail, String subject, String htmlMsg) throws Exception{
         Properties properties = new Properties();
-        String MSLGAConfigPath = getClass().getResource("/").getPath() + "MSL.GA.Config.properties";
-        InputStream inputStream = new FileInputStream(MSLGAConfigPath);
+        InputStream inputStream = new FileInputStream(this.MSLGAConfigPropertiesPathFile);
         if(inputStream == null){
-            throw new Exception("No se encuentra archivo de configurcion de base de datos: " + MSLGAConfigPath);
+            throw new Exception("No se encuentra archivo de configurcion de base de datos: " + this.MSLGAConfigPropertiesPathFile);
         }
         properties.load(inputStream);
         boolean envioDeEmails = Boolean.valueOf(properties.getProperty("msl_ga_gmail_activate"));

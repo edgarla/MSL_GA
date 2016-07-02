@@ -44,8 +44,8 @@ public class SendEmailNotificationTest {
      @Test
      public void hello() {
         try {
-            SendMailTLS sendMailTLS = new SendMailTLS();
-            sendMailTLS.sendEmail("elora@msl.com.co", "Prueba" , "<h3>Esto es una prueba</h3>");
+//            SendMailTLS sendMailTLS = new SendMailTLS();
+//            sendMailTLS.sendEmail("elora@msl.com.co", "Prueba" , "<h3>Esto es una prueba</h3>");
         } catch (Exception ex) {
             Logger.getLogger(SendEmailNotificationTest.class.getName()).log(Level.SEVERE, null, ex);
         }

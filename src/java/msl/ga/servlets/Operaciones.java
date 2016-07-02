@@ -111,12 +111,13 @@ public class Operaciones extends HttpServlet {
                 }
             }
         } catch (Exception ex) {
+            Logger.getLogger(Operaciones.class.getName()).log(Level.SEVERE, null, ex);
             response.getWriter().println("error|Error General|" + ex.getMessage());
         }
     }
     
     private boolean inicializacion(HttpServletRequest request, HttpServletResponse response) throws IOException, Exception{
-        dbInfo = new DbInfo(getClass().getResource("/").getPath());
+        dbInfo = new DbInfo(this.getMSLGAConfigPropertiesPath(request));
         if(this.listaUsuarios == null){
             try {
                 this.cargarUsuarios();
@@ -464,7 +465,7 @@ public class Operaciones extends HttpServlet {
                 emailContent = emailContent + "</div id=\"listaActividadesConsultor\">";
                 emailContent = emailContent + "</body>";
                 emailContent = emailContent + "</html>";
-                SendMailTLS sendMailTLS = new SendMailTLS();
+                SendMailTLS sendMailTLS = new SendMailTLS(this.getMSLGAConfigPropertiesPath(request));
                 sendMailTLS.sendEmail(usuario.getEmail(), "Actualización de Agenda", emailContent);
             }
         } catch (ClassNotFoundException | SQLException ex) {
@@ -472,6 +473,22 @@ public class Operaciones extends HttpServlet {
         } catch (Exception ex) {
             response.getWriter().println("error|Error Enviando Notificación|" + ex.getMessage());
         }
+    }
+    
+    private String getMSLGAConfigPropertiesPath(HttpServletRequest request){
+        String path = "";
+        String serverInfo = request.getServletContext().getServerInfo();
+        if(serverInfo.toLowerCase().contains("tomcat")){
+            String userdir = System.getProperty("user.dir");
+            if(userdir.endsWith("/bin")){
+                path = System.getProperty("user.dir").replaceAll("/bin", "/conf/MSL.GA.Config.properties");
+            }else{
+                path = userdir + "/conf/MSL.GA.Config.properties";
+            }
+        }else if(serverInfo.toLowerCase().contains("glassfish")){
+            path = System.getProperty("user.dir") + "/MSL.GA.Config.properties";
+        }
+        return path;
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
