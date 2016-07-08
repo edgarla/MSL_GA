@@ -74,6 +74,7 @@ function login(){
                     initAdministrador();
                     $("#administrador").fadeIn();
                 }else if(usuarioEnSesion[4].match("pm")){
+                    initPM();
                     $("#pm").fadeIn();
                 }else if(usuarioEnSesion[4].match("consultor")){
                     initConsultor();
@@ -111,6 +112,7 @@ function haySession(){
                             initAdministrador();
                             $("#administrador").fadeIn();
                         }else if(usuarioEnSesion[4].match("pm")){
+                            initPM();
                             $("#pm").fadeIn();
                         }else if(usuarioEnSesion[4].match("consultor")){
                             initConsultor();
@@ -151,7 +153,27 @@ function initAdministrador(){
     cargarUsuarios();
     cargarClientes();
     cargarTipoActividades();
-    cargarProyectos();
+    cargarProyectos("#proyecto");
+    $("#botonAgregarActividad").button({
+        icons: {
+            primary: "ui-icon-disk"
+        }
+    });
+    $("#botonEditarActividad").button({
+        icons: {
+            primary: "ui-icon-wrench"
+        }
+    });
+    $("#botonEliminarActividad").button({
+        icons: {
+            primary: "ui-icon-trash"
+        }
+    });
+    $("#botonCancelarActividad").button({
+        icons: {
+            primary: "ui-icon-cancel"
+        }
+    });
     $("#botonEditarActividad").hide();
     $("#botonEliminarActividad").hide();
     $("#botonCancelarActividad").hide();
@@ -181,6 +203,22 @@ function initConsultor(){
         dateFormat: 'dd-mm-yy',
         onSelect: function(){
             actividadesDelConsultor2();
+        }
+    });
+}
+
+function initPM(){
+    cargarProyectos("#listaProyectos");
+    $("#acordeonPM").accordion();
+    $("#listaProyectos").selectmenu({
+        change: function(event, data){
+            consultarActividadesPorProyectos();
+        }
+    });
+    $("#fechaActividadPM").datepicker({
+        dateFormat: 'dd-mm-yy',
+        onSelect: function(){
+            consultarActividadesPorProyectos();
         }
     });
 }
@@ -419,7 +457,7 @@ function editarActividadAConsultor(){
     }
 }
 
-function cargarProyectos(){
+function cargarProyectos(elemento){
     $.ajax({
         url: "/MSL_GestionDeActividades/Operaciones",
         type: "POST",
@@ -431,9 +469,28 @@ function cargarProyectos(){
                 var proyectos = response.split("|");
                 for(var i = 0; i < proyectos.length; i = i + 1){
                     var proyecto = proyectos[i].split("¨");
-                    $("#proyecto").html($("#proyecto").html() + "<option value=\"" + proyecto[0] + "\">" + proyecto[1] + "</option>");
+                    $(elemento).html($(elemento).html() + "<option value=\"" + proyecto[0] + "\">" + proyecto[1] + "</option>");
                 }
             }
         }
     });
+}
+
+function consultarActividadesPorProyectos(){
+    if($("#listaProyectos").val() !== ""){
+        $.ajax({
+            url: "/MSL_GestionDeActividades/Operaciones",
+            type: "POST",
+            data: {accion: "getActividadesPorProyecto",
+                    idproyecto: $("#listaProyectos").val(),
+                    fecha: $("#fechaActividadPM").val()},
+            success:function(response){
+                if(response.match("^error")){
+                    mostrarMensaje(response);
+                }else{
+                    $("#listaActividadesPM").html(response);
+                }
+            }
+        });
+    }
 }

@@ -69,15 +69,15 @@ and open the template in the editor.
     margin-top: 15px;
 }
 
-#acordeonAdmin, #acordeonConsultor{
+#acordeonAdmin, #acordeonConsultor, #acordeonPM{
     margin-top: 50px;
 }
 
-#acordeonAdmin div.panel, #acordeonConsultor div.panel{
+#acordeonAdmin div.panel, #acordeonConsultor div.panel, #acordeonPM div.panel{
     height: 750px;
 }
 
-#listaConsultores{
+#listaConsultores, #listaProyectos{
     width: 400px;
 }
 

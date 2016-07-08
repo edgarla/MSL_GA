@@ -26,6 +26,7 @@ import msl.ga.ejb.ProyectoEJB;
 import msl.ga.ejb.TipoActividadEJB;
 import msl.ga.ejb.UsuarioEJB;
 import msl.ga.modelo.Actividad;
+import msl.ga.modelo.ActividadPorProyecto;
 import msl.ga.modelo.Cliente;
 import msl.ga.modelo.Programacion;
 import msl.ga.modelo.Proyecto;
@@ -41,10 +42,10 @@ import org.apache.commons.lang3.StringEscapeUtils;
 @WebServlet(name = "Operaciones", urlPatterns = {"/Operaciones"})
 public class Operaciones extends HttpServlet {
     
-    private ArrayList listaUsuarios;
-    private ArrayList listaClientes;
-    private ArrayList listaTipoActividades;
-    private ArrayList listaProyectos;
+    private ArrayList<Usuario> listaUsuarios;
+    private ArrayList<Cliente> listaClientes;
+    private ArrayList<TipoActividad> listaTipoActividades;
+    private ArrayList<Proyecto> listaProyectos;
     private Usuario usuarioEnSesion;
     private String rol;
     private DbInfo dbInfo;
@@ -107,6 +108,9 @@ public class Operaciones extends HttpServlet {
                         break;
                     case "getListaProyectos":
                         this.getListaProyectos(response);
+                        break;
+                    case "getActividadesPorProyecto":
+                        this.getActividadesPorProyecto(request, response);
                         break;
                 }
             }
@@ -489,6 +493,35 @@ public class Operaciones extends HttpServlet {
             path = System.getProperty("user.dir") + "/MSL.GA.Config.properties";
         }
         return path;
+    }
+    
+    private void getActividadesPorProyecto(HttpServletRequest request, HttpServletResponse response) throws IOException{
+        try {
+            String idproyectoParameter = request.getParameter("idproyecto");
+            String fechaParameter = request.getParameter("fecha");
+            String listaActividades = "";
+            
+            int i = 0;
+            Proyecto p = null;
+            while(i < this.listaProyectos.size() && p == null){
+                Proyecto proyecto = this.listaProyectos.get(i);
+                if(proyecto.getIdProyecto() ==  Integer.parseInt(idproyectoParameter)){
+                    p = proyecto;
+                }
+                i = i + 1;
+            }
+
+            ActividadEJB actividadesEJB = new ActividadEJB(this.dbInfo);
+            ArrayList actividades = actividadesEJB.ActividadesPorProyecto(p, fechaParameter);
+            for(i = 0; i < actividades.size(); i = i + 1){
+                ActividadPorProyecto a = (ActividadPorProyecto) actividades.get(i);
+                listaActividades = listaActividades + a.toHtml(p, this.listaTipoActividades, this.listaUsuarios);
+            }
+            response.getWriter().println(listaActividades);
+        } catch (ClassNotFoundException | SQLException ex) {
+            Logger.getLogger(Operaciones.class.getName()).log(Level.SEVERE, null, ex);
+            response.getWriter().println("error|Error Consultando Actividades Por Proyecto|" + ex.getMessage());
+        }
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

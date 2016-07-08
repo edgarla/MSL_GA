@@ -15,7 +15,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import msl.ga.db.DbInfo;
 import msl.ga.modelo.Actividad;
+import msl.ga.modelo.ActividadPorProyecto;
 import msl.ga.modelo.Programacion;
+import msl.ga.modelo.Proyecto;
 
 /**
  *
@@ -117,9 +119,39 @@ public class ActividadEJB {
     public void ActualizarEstadoActividad(Actividad a) throws ClassNotFoundException, SQLException, IOException{
         Class.forName(dbInfo.getDriverMslGaDB());
         try (Connection conn = DriverManager.getConnection(dbInfo.getUrlMslGaDB(), dbInfo.getUsrMslGaDB(), dbInfo.getPasMslGaDB())) {
-                try (Statement st = conn.createStatement()) {
-                    st.executeUpdate(this.getQueryActualizarEstadoActividad(a));
+            try (Statement st = conn.createStatement()) {
+                st.executeUpdate(this.getQueryActualizarEstadoActividad(a));
+            }
+        }
+    }
+    
+    private String getQueryActividadesPorProyecto(Proyecto p, String fecha){
+        String sql = "";
+        if(dbInfo.getDriverMslGaDB().contains("postgresql")){
+            sql = "select p.id_consultor, a.* from MSL_GA_SCHEMA.Actividad a inner join MSL_GA_SCHEMA.Programacion p on p.id_programacion = a.id_programacion  where a.estado = 0 and p.semana = EXTRACT(WEEK FROM TIMESTAMP '" + fecha + "') and a.id_proyecto = " + p.getIdProyecto();
+        }else if(dbInfo.getDriverMslGaDB().contains("sqlserver")){
+            sql = "select p.id_consultor, a.* from MSL_GA_SCHEMA.Actividad a inner join MSL_GA_SCHEMA.Programacion p on p.id_programacion = a.id_programacion  where a.estado = 0 and p.semana = datepart(wk, '" + fecha + "') and a.id_proyecto = " + p.getIdProyecto();
+        }
+        return sql;
+    }
+    
+    public ArrayList ActividadesPorProyecto(Proyecto p, String fecha) throws ClassNotFoundException, SQLException{
+        Class.forName(dbInfo.getDriverMslGaDB());
+        ArrayList result = null;
+        try (Connection conn = DriverManager.getConnection(dbInfo.getUrlMslGaDB(), dbInfo.getUsrMslGaDB(), dbInfo.getPasMslGaDB())) {
+            try (Statement st = conn.createStatement()) {
+                try (ResultSet r = st.executeQuery(this.getQueryActividadesPorProyecto(p, fecha))){
+                    while(r.next()){
+                        ActividadPorProyecto a;
+                        if(result == null){
+                            result = new ArrayList();
+                        }
+                        a = new ActividadPorProyecto(r.getString("id_consultor"), r.getInt("id_actividad"), r.getInt("id_programacion"), r.getDate("fecha_programacion"), r.getString("id_organizacion") ,r.getInt("jornada"), r.getInt("id_tipo_actividad"), r.getInt("id_proyecto"), r.getInt("estado"), r.getString("descripcion"));
+                        result.add(a);
+                    }
                 }
             }
+        }
+        return result;
     }
 }

@@ -27,7 +27,7 @@ public class ProyectoEJB {
         this.dbInfo = dbInfo;
     }
     
-    public ArrayList getListaProyectos() throws ClassNotFoundException, SQLException, IOException{
+    public ArrayList<Proyecto> getListaProyectos() throws ClassNotFoundException, SQLException, IOException{
         ArrayList proyectos = null;
         Class.forName(dbInfo.getDriverServiceDeskDB());
         try (Connection conn = DriverManager.getConnection(dbInfo.getUrlServiceDeskDB(), dbInfo.getUsrServiceDesk(), dbInfo.getPasServiceDesk())) {

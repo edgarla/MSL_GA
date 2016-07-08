@@ -21,26 +21,6 @@ and open the template in the editor.
                         primary: "ui-icon-locked"
                     }
                 });
-                $("#botonAgregarActividad").button({
-                    icons: {
-                        primary: "ui-icon-disk"
-                    }
-                });
-                $("#botonEditarActividad").button({
-                    icons: {
-                        primary: "ui-icon-wrench"
-                    }
-                });
-                $("#botonEliminarActividad").button({
-                    icons: {
-                        primary: "ui-icon-trash"
-                    }
-                });
-                $("#botonCancelarActividad").button({
-                    icons: {
-                        primary: "ui-icon-cancel"
-                    }
-                });
             });
         </script>
     </head>
@@ -116,8 +96,24 @@ and open the template in the editor.
             </div>
         </div>
         <div id="pm" class="Marco" >
-            En construcción
             <p class="logoutButton" onclick="logout()"><span class="ui-icon ui-icon-power" style="float: left; margin:0px;"></span>Salir</p>
+            <div id="acordeonPM">
+                <h3>Actividades Programadas</h3>
+                <div class="panel">
+                    <div class="panelIzq">
+                        <p>Seleccione el proyecto:</p>
+                        <select id="listaProyectos">
+                            <option value=""></option>
+                        </select>
+                        <p>Seleccione la fecha:</p>
+                        <div id="fechaActividadPM"></div>
+                    </div>
+                    <div class="panelDer">
+                        <p class="titulo">Listado de Actividades</p>
+                        <div id="listaActividadesPM"></div>
+                    </div>
+                </div>
+            </div>
         </div>
         <div id="consultor" class="Marco" >
             <p class="logoutButton" onclick="logout()"><span class="ui-icon ui-icon-power" style="float: left; margin:0px;"></span>Salir</p>
